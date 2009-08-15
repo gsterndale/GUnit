@@ -1,6 +1,1 @@
 require 'gunit/test_case'
-require 'gunit/context'
-require 'gunit/verification'
-require 'gunit/exercise'
-require 'gunit/setup'
-require 'gunit/teardown'

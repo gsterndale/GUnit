@@ -6,7 +6,9 @@ require 'test_helper'
 #   context "An instance of MyClass"
 #     
 #     verify "true is true" do
-#       true
+#       verify true != nil
+#       verify true == true
+#       verify true === true
 #     end
 #   end
 # end
@@ -59,6 +61,12 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert ! @verification1.matches?
     @verification1.actual = lambda{"123"}
     assert @verification1.matches?
+    
+    @verification1.expected = "123"
+    @verification1.actual = Proc.new{"321"}
+    assert ! @verification1.matches?
+    @verification1.actual = Proc.new{"123"}
+    assert @verification1.matches?
   end
   
   def test_initialize_with_one_arg
@@ -86,5 +94,30 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert actual === @verification2.actual
     assert true === @verification2.expected
   end
+  
+  # def test_nested_verifications
+  #   @verification2 = GUnit::Verification.new(message){
+  #     @verification3 = GUnit::Verification.new(true)
+  #     @verification4 = GUnit::Verification.new(false)
+  #   }
+  # end
+  
+  def test_run_with_true_match
+    @verification1.actual = true
+    assert @verification1.matches?
+    response = @verification1.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::Pass)
+    
+  end
+  
+  def test_run_with_false_match
+    
+  end
+  
+  def test_run_with_raising_match
+    
+  end
+  
   
 end
