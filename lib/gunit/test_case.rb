@@ -30,9 +30,10 @@ module GUnit
       self.send(self.method_name.to_sym)
     end
     
-    # def self.suite
-    #   # Create an new instance of self.class for each test method and add them to a TestSuite Object
-    # end
+    def self.suite
+      # Create an new instance of self.class for each test method and add them to a TestSuite Object
+      TestSuite.new
+    end
     
   end
   
