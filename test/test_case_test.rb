@@ -73,5 +73,27 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert @my_test_case.is_a?(GUnit::TestCase)
   end
   
+  def test_method_name_setter_getter
+    method_name = "my_method"
+    assert_not_equal method_name, @my_test_case.method_name
+    @my_test_case.method_name = method_name
+    assert_equal method_name, @my_test_case.method_name
+  end
+  
+  def test_constructor
+    method_name = "my_method"
+    @my_test_case1 = MyClassTest.new()
+    assert_not_equal method_name, @my_test_case1.method_name
+    @my_test_case1 = MyClassTest.new(method_name)
+    assert_equal method_name, @my_test_case1.method_name
+  end
+  
+  def test_run_calls_method_name
+    method_name = "my_method"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.expects(method_name.to_sym)
+    @my_test_case1.run
+  end
+  
   
 end
