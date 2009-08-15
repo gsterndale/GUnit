@@ -3,6 +3,7 @@ require 'gunit/exercise'
 require 'gunit/setup'
 require 'gunit/teardown'
 require 'gunit/verification'
+require 'gunit/test_suite'
 
 module GUnit
   
