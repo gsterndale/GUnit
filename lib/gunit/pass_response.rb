@@ -2,7 +2,7 @@ require 'gunit/test_response'
 
 module GUnit
   
-  class Pass < TestResponse
+  class PassResponse < TestResponse
   end
   
 end

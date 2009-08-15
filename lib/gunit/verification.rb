@@ -1,5 +1,7 @@
 require 'gunit/test_response'
-require 'gunit/pass'
+require 'gunit/pass_response'
+require 'gunit/fail_response'
+require 'gunit/exception_response'
 
 module GUnit
   
@@ -24,11 +26,12 @@ module GUnit
     def run
       begin
         if self.matches?
-          Pass.new
+          PassResponse.new
         else
+          FailResponse.new
         end
       rescue ::StandardError => e
-        
+        ExceptionResponse.new
       end
     end
     

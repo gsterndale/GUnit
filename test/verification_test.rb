@@ -107,16 +107,23 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert @verification1.matches?
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
-    assert response.is_a?(GUnit::Pass)
-    
+    assert response.is_a?(GUnit::PassResponse)
   end
   
   def test_run_with_false_match
-    
+    @verification1.actual = false
+    assert !@verification1.matches?
+    response = @verification1.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::FailResponse)
   end
   
   def test_run_with_raising_match
-    
+    @verification1.actual = lambda{ raise StandardError }
+    assert_raise(StandardError) {@verification1.matches?}
+    response = @verification1.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ExceptionResponse)
   end
   
   
