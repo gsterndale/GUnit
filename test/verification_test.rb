@@ -146,6 +146,16 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert @verification2.responses.is_a?(Array)
     assert_equal 2, @verification2.responses.length
     assert @verification2.responses.all?{|r| r.is_a?(GUnit::FailResponse) }
+    
+    @verification2 = GUnit::Verification.new("top message") do |parent|
+      GUnit::Verification.new(false).run(parent)
+      GUnit::Verification.new(false).run(parent)
+    end
+    response = @verification2.run
+    assert response.is_a?(GUnit::FailResponse)
+    assert @verification2.responses.is_a?(Array)
+    assert_equal 2, @verification2.responses.length
+    assert @verification2.responses.all?{|r| r.is_a?(GUnit::FailResponse) }
   end
   
   def test_failing_and_passing_nested_verifications
