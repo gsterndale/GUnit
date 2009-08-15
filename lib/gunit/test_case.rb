@@ -21,6 +21,7 @@ module GUnit
   # count, run, display
   class TestCase
     attr_accessor :method_name
+    @@method_count = 0
     
     def initialize(method=nil)
       self.method_name = method
@@ -32,8 +33,63 @@ module GUnit
     
     def self.suite
       # Create an new instance of self.class for each test method and add them to a TestSuite Object
+      # debugger
       TestSuite.new
     end
+    
+    # verify(1 > 0)
+    # def test_1
+    #   GUnit::Verification.new(#{args}).run
+    # end
+    
+    # verify("true is true") do
+    #   true == true
+    # end
+    # def test_2
+    #   GUnit::Verification.new(#{args}) { |parent|
+    #     true == true
+    #   }.run
+    # end
+    
+    # verify("true is true is true") do
+    #   verify(true == true)
+    #   verify(true === true)
+    # end
+    # def test_3
+    #   GUnit::Verification.new(#{args}) { |parent|
+    #     verify(true == true) # => GUnit::Verification.new(#{args}).run(parent)
+    #     verify(true === true) # => GUnit::Verification.new(#{args}).run(parent)
+    #   }.run
+    # end
+    def self.verify(*args, &blk)
+      test_method_name = unique_test_method_name
+      (class <<self; self; end).send :define_method, test_method_name do
+        verification = if blk
+          GUnit::Verification.new(args.first, blk)
+        else
+          GUnit::Verification.new(args.first)
+        end
+        # verification = GUnit::Verification.new(args){|parent|
+        #   GUnit::Verification.new(true).run(parent)
+        #   GUnit::Verification.new(false).run(parent)
+        # }
+        verification.run
+      end
+      test_method_name
+    end
+    
+    
+  protected
+    
+    # def self.discover_test_methods(test_case_class = self)
+    #   self.superclass == GUnit::TestCase
+    #   self.public_methods
+    # end
+    
+    def self.unique_test_method_name(name="")
+      "test_#{name}_#{@@method_count+=1}".to_sym
+    end
+    
     
   end
   

@@ -14,6 +14,7 @@ module GUnit
     # Verification.new(true)
     # Verification.new("message") { true }
     def initialize(*args, &blk)
+      # args.flatten! # TODO may need to be smarter about when this happens
       if blk
         self.actual  = blk
         self.message = args[0] 

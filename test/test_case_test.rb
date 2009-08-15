@@ -4,22 +4,31 @@ class MyClass
 end
 
 class MyClassTest < GUnit::TestCase
-    
+  
+  
   # verify_is_a @my_class, MyClass
   # 
   # context "An instance of MyClass"
-  #   
+  #   # One setup per context
   #   setup do
   #     @my_class = MyClass.new
   #   end
-  # 
+  #   
+  #   # One exercise per context
   #   exercise do
   #   end
   # 
+  #   # One teardown per context
+  #   teardown do
+  #     @my_class.delete
+  #   end
+  #   
+  #   # Many verifies per context
   #   verify "true is true" do
   #     true
   #   end
   #   
+  #   # Many nested verifies per context
   #   verify "these verifications pass without reloading setup, exercise or teardown" do
   #     
   #     verify { true }
@@ -47,10 +56,7 @@ class MyClassTest < GUnit::TestCase
   #     raise RuntimeError
   #   end
   #   
-  #   teardown do
-  #     @my_class.delete
-  #   end
-  #   
+  #   # many nested contexts per context
   #   context "doing something" do
   #     exercise do
   #       @my_class.do_something
@@ -95,8 +101,38 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     @my_test_case1.run
   end
   
-  def test_suite_returns_test_suite
-    assert MyClassTest.suite.is_a?(GUnit::TestSuite)
+  def test_verify_creates_class_method
+    method_count = MyClassTest.public_methods.length
+    args = true
+    dynamic_method_name = MyClassTest.verify(args)
+    assert_equal method_count + 1, MyClassTest.public_methods.length
+    assert dynamic_method_name.to_s =~ /\d\z/
+    assert MyClassTest.respond_to?(dynamic_method_name)
+    verification = GUnit::Verification.new
+    pass = GUnit::PassResponse.new
+    verification.expects(:run).returns(pass)
+    GUnit::Verification.expects(:new).with(args).returns(verification)
+    assert_equal pass, MyClassTest.send(dynamic_method_name)
   end
   
+  def test_verify_with_block_creates_class_method
+    method_count = MyClassTest.public_methods.length
+    args = "The truth"
+    blk  = Proc.new{ true }
+    dynamic_method_name = MyClassTest.verify(args)
+    assert_equal method_count + 1, MyClassTest.public_methods.length
+    assert dynamic_method_name.to_s =~ /\d\z/
+    assert MyClassTest.respond_to?(dynamic_method_name)
+    verification = GUnit::Verification.new
+    pass = GUnit::PassResponse.new
+    verification.expects(:run).returns(pass)
+# TODO how to set expectation that blk is passed to new() ???
+    GUnit::Verification.expects(:new).with(args).returns(verification)
+    assert_equal pass, MyClassTest.send(dynamic_method_name)
+  end
+  
+    def test_suite_returns_test_suite
+      assert MyClassTest.suite.is_a?(GUnit::TestSuite)
+    end
+    
 end

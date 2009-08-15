@@ -195,5 +195,4 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert response.is_a?(GUnit::ExceptionResponse)
   end
   
-  
 end
