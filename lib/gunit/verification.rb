@@ -8,6 +8,7 @@ module GUnit
   class Verification
     attr_writer :message
     attr_accessor :expected, :actual
+    attr_accessor :responses
     
     # Verification.new(true, "message")
     # Verification.new(true)
@@ -21,18 +22,21 @@ module GUnit
         self.message = args[1]
       end
       self.expected = true
+      self.responses = []
     end
     
-    def run
+    def run(parent=nil)
       begin
-        if self.matches?
+        response = if self.matches?
           PassResponse.new
         else
           FailResponse.new
         end
       rescue ::StandardError => e
-        ExceptionResponse.new
+        response = ExceptionResponse.new
       end
+      parent.responses << response if parent
+      response
     end
     
     
@@ -41,7 +45,12 @@ module GUnit
     end
     
     def matches?
-      (@actual.is_a?(Proc) ? @actual.call : @actual) == @expected
+      if @actual.is_a?(Proc)
+        returned = @actual[self]
+        returned == @expected || returned.is_a?(PassResponse)
+      else
+        @actual == @expected
+      end
     end
     
     def default_message
