@@ -51,6 +51,7 @@ module GUnit
     #   }.run
     # end
     
+    # TODO
     # verify("true is true is true") do
     #   verify(true == true)
     #   verify(true === true)
