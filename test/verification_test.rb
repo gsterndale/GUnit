@@ -47,13 +47,6 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert_equal actual, @verification1.actual
   end
   
-  def test_responses_setter_getter
-    responses = ["Foo"]
-    assert_not_equal responses, @verification1.responses
-    @verification1.responses = responses
-    assert_equal responses, @verification1.responses
-  end
-  
   def test_matches?
     @verification1.expected = "123"
     @verification1.actual = "321"
@@ -100,75 +93,6 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert message === @verification2.message 
     assert actual === @verification2.actual
     assert true === @verification2.expected
-  end
-  
-  def test_failing_nested_verification
-    @verification2 = GUnit::Verification.new("top message"){|parent|
-      GUnit::Verification.new(false).run(parent)
-    }
-    response = @verification2.run
-    assert response.is_a?(GUnit::FailResponse)
-    assert @verification2.responses.is_a?(Array)
-    assert !@verification2.responses.empty?
-    assert @verification2.responses[0].is_a?(GUnit::FailResponse)
-  end
-  
-  def test_passing_nested_verification
-    @verification2 = GUnit::Verification.new("top message"){|parent|
-      GUnit::Verification.new(true).run(parent)
-    }
-    response = @verification2.run
-    assert response.is_a?(GUnit::PassResponse)
-    assert @verification2.responses.is_a?(Array)
-    assert !@verification2.responses.empty?
-    assert @verification2.responses[0].is_a?(GUnit::PassResponse)
-  end
-  
-  def test_passing_nested_verifications
-    @verification2 = GUnit::Verification.new("top message"){|parent|
-      GUnit::Verification.new(true).run(parent)
-      GUnit::Verification.new(true).run(parent)
-    }
-    response = @verification2.run
-    assert response.is_a?(GUnit::PassResponse)
-    assert @verification2.responses.is_a?(Array)
-    assert_equal 2, @verification2.responses.length
-    assert @verification2.responses.all?{|r| r.is_a?(GUnit::PassResponse) }
-  end
-  
-  def test_failing_nested_verifications
-    @verification2 = GUnit::Verification.new("top message"){|parent|
-      GUnit::Verification.new(false).run(parent)
-      GUnit::Verification.new(false).run(parent)
-    }
-    response = @verification2.run
-    assert response.is_a?(GUnit::FailResponse)
-    assert @verification2.responses.is_a?(Array)
-    assert_equal 2, @verification2.responses.length
-    assert @verification2.responses.all?{|r| r.is_a?(GUnit::FailResponse) }
-    
-    @verification2 = GUnit::Verification.new("top message") do |parent|
-      GUnit::Verification.new(false).run(parent)
-      GUnit::Verification.new(false).run(parent)
-    end
-    response = @verification2.run
-    assert response.is_a?(GUnit::FailResponse)
-    assert @verification2.responses.is_a?(Array)
-    assert_equal 2, @verification2.responses.length
-    assert @verification2.responses.all?{|r| r.is_a?(GUnit::FailResponse) }
-  end
-  
-  def test_failing_and_passing_nested_verifications
-    @verification2 = GUnit::Verification.new("top message"){|parent|
-      GUnit::Verification.new(true).run(parent)
-      GUnit::Verification.new(false).run(parent)
-    }
-    response = @verification2.run
-    assert response.is_a?(GUnit::FailResponse)
-    assert @verification2.responses.is_a?(Array)
-    assert_equal 2, @verification2.responses.length
-    assert @verification2.responses.detect{|r| r.is_a?(GUnit::FailResponse) }
-    assert @verification2.responses.detect{|r| r.is_a?(GUnit::PassResponse) }
   end
   
   def test_run_with_true_match

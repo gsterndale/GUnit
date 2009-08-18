@@ -8,7 +8,6 @@ module GUnit
   class Verification
     attr_writer :message
     attr_accessor :expected, :actual
-    attr_accessor :responses
     
     # Verification.new(true, "message")
     # Verification.new(true)
@@ -23,7 +22,6 @@ module GUnit
         self.message = args[1]
       end
       self.expected = true
-      self.responses = []
     end
     
     def run(parent=nil)
@@ -36,7 +34,6 @@ module GUnit
       rescue ::StandardError => e
         response = ExceptionResponse.new
       end
-      parent.responses << response if parent
       response
     end
     
