@@ -13,6 +13,7 @@ class MyClassTest < GUnit::TestCase
   #   
   #   # One exercise per context
   #   exercise do
+  #     @my_class.do_something
   #   end
   # 
   #   # One teardown per context
@@ -25,9 +26,20 @@ class MyClassTest < GUnit::TestCase
   #     assert true
   #   end
   #   
+  #   # Many verifies per context, some share fixtures
+  #   # setup, exercise and teardown will only be run once for all methods in this context with the second param == true
+  #   verify "one and one is two", true do
+  #     assert 1+1 == 2
+  #   end
+  #   
+  #   # Many verifies per context, some share fixtures
+  #   # setup, exercise and teardown will only be run once for all methods in this context with the second param == true
+  #   verify "one is more than none", true do
+  #     assert 1 > 0
+  #   end
+  # 
   #   # Many verifies per context
-  #   verify "these verifications pass without reloading setup, exercise or teardown" do
-  #     
+  #   verify "the truth" do
   #     assert { true }
   #     assert "true is true" { true }
   #     assert true
@@ -55,9 +67,9 @@ class MyClassTest < GUnit::TestCase
   #   end
   #   
   #   # many nested contexts per context
-  #   context "doing something" do
+  #   context "doing something else" do
   #     exercise do
-  #       @my_class.do_something
+  #       @my_class.do_something_else
   #     end
   #     verify "something changed" do
   #       assert_change @my_class.something, :by => -1
