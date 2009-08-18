@@ -5,9 +5,6 @@ end
 
 class MyClassTest < GUnit::TestCase
   
-  
-  # verify_is_a @my_class, MyClass
-  # 
   # context "An instance of MyClass"
   #   # One setup per context
   #   setup do
@@ -25,35 +22,36 @@ class MyClassTest < GUnit::TestCase
   #   
   #   # Many verifies per context
   #   verify "true is true" do
-  #     true
+  #     assert true
   #   end
   #   
-  #   # Many nested verifies per context
+  #   # Many verifies per context
   #   verify "these verifications pass without reloading setup, exercise or teardown" do
   #     
-  #     verify { true }
-  #     verify "true is true" { true }
-  #     verify true
-  #     verify_equal true, true
-  #     verify_equal true, true, "true is true"
-  #     verify_equal true, true, "true is true" {|a,b| a === b }
+  #     assert { true }
+  #     assert "true is true" { true }
+  #     assert true
+  #     assert_equal true, true
+  #     assert_equal true, true, "true is true"
+  #     assert_equal true, true, "true is true" {|a,b| a === b }
   #     
-  #   end
+  #     assert_is_a @my_class, MyClass
   #   
-  #   verify_nil nil
+  #     assert_nil nil
   #   
-  #   verify_nil nil, "nil is nil"
+  #     assert_nil nil, "nil is nil"
   #   
-  #   verify_raise do
-  #     raise RuntimeError
-  #   end
+  #     assert_raise do
+  #       raise RuntimeError
+  #     end
   #   
-  #   verify_raise RuntimeError do
-  #     raise RuntimeError
-  #   end
+  #     assert_raise RuntimeError do
+  #       raise RuntimeError
+  #     end
   #   
-  #   verify_raise RuntimeError, "blow up" do
-  #     raise RuntimeError
+  #     assert_raise RuntimeError, "blow up" do
+  #       raise RuntimeError
+  #     end
   #   end
   #   
   #   # many nested contexts per context
@@ -61,9 +59,11 @@ class MyClassTest < GUnit::TestCase
   #     exercise do
   #       @my_class.do_something
   #     end
-  #     verify_change @my_class.something, :by => -1
-  #     verify_change "@my_class.something_else", :from => true, :to => false
-  #     verify_change "@my_class.third_thing" {|before, after| before < after }
+  #     verify "something changed" do
+  #       assert_change @my_class.something, :by => -1
+  #       assert_change "@my_class.something_else", :from => true, :to => false
+  #       assert_change "@my_class.third_thing" {|before, after| before < after }
+  #     end
   #   end
   # end
   
@@ -131,8 +131,28 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal pass, MyClassTest.send(dynamic_method_name)
   end
   
-    def test_suite_returns_test_suite
-      assert MyClassTest.suite.is_a?(GUnit::TestSuite)
-    end
-    
+  def test_suite_returns_test_suite
+    assert MyClassTest.suite.is_a?(GUnit::TestSuite)
+  end
+  
+  def test_assert_true
+    response = @my_test_case.assert(true)
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::PassResponse)
+  end
+  
+  def test_assert_false
+    response = @my_test_case.assert(false)
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::FailResponse)
+  end
+  
+  def test_assert_with_exception_raised
+    boom = lambda{ raise StandardError }
+    # assert_raise(StandardError) { boom.call }
+    response = @my_test_case.assert( boom )
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ExceptionResponse)
+  end
+  
 end
