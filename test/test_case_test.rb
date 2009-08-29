@@ -153,9 +153,15 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert MyClassTest.test_methods.length == 2
   end
   
-  
-  def test_suite_returns_test_suite
-    assert MyClassTest.suite.is_a?(GUnit::TestSuite)
+  def test_suite_returns_test_suite_with_test_cases
+    MyClassTest.stubs(:test_one)
+    MyClassTest.stubs(:test_two)
+    MyClassTest.stubs(:not_a_test_method)
+    test_suite = MyClassTest.suite
+    assert test_suite.is_a?(GUnit::TestSuite)
+    assert test_suite.tests.length == 2
+    assert test_suite.tests.find{|t| t.method_name == :test_one }
+    assert test_suite.tests.find{|t| t.method_name == :test_two }
   end
   
   def test_assert_true

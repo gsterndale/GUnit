@@ -45,6 +45,11 @@ module GUnit
       end
       test_suite
     end
+
+    def self.test_methods(prefix=TEST_METHOD_PREFIX)
+      method_names = singleton_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.singleton_methods.include?(method) }
+      method_names.map!{|m| m.to_sym }
+    end
     
     def self.verify(*args, &blk)
       test_method_name = unique_test_method_name
@@ -57,11 +62,6 @@ module GUnit
         verification.run
       end
       test_method_name
-    end
-    
-    def self.test_methods(prefix=TEST_METHOD_PREFIX)
-      method_names = singleton_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.singleton_methods.include?(method) }
-      method_names.map!{|m| m.to_sym }
     end
     
   protected
