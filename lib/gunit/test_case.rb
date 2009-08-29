@@ -5,6 +5,7 @@ require 'gunit/setup'
 require 'gunit/teardown'
 require 'gunit/verification'
 require 'gunit/test_suite'
+require 'gunit/test_runner'
 
 module GUnit
   
