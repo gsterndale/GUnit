@@ -19,7 +19,7 @@ module GUnit
       self.expected = true
     end
     
-    def run(parent=nil)
+    def run
       begin
         response = if self.matches?
           PassResponse.new
@@ -32,15 +32,13 @@ module GUnit
       response
     end
     
-    
     def message
       @message || default_message
     end
     
     def matches?
       if @actual.is_a?(Proc)
-        returned = @actual[self]
-        returned == @expected || returned.is_a?(PassResponse)
+        @actual.call == @expected
       else
         @actual == @expected
       end
