@@ -24,6 +24,8 @@ module GUnit
     
     include Assertions
     
+    TEST_METHOD_PREFIX = 'test_'
+    
     attr_accessor :method_name
     @@method_count = 0
     
@@ -37,7 +39,11 @@ module GUnit
     
     def self.suite
       # Create an new instance of self.class for each test method and add them to a TestSuite Object
-      TestSuite.new
+      test_suite = TestSuite.new
+      test_methods.each do |test_method|
+        test_suite.tests << new(test_method)
+      end
+      test_suite
     end
     
     def self.verify(*args, &blk)
@@ -53,15 +59,15 @@ module GUnit
       test_method_name
     end
     
+    def self.test_methods(prefix=TEST_METHOD_PREFIX)
+      method_names = singleton_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.singleton_methods.include?(method) }
+      method_names.map!{|m| m.to_sym }
+    end
+    
   protected
     
-    # def self.discover_test_methods(test_case_class = self)
-    #   self.superclass == GUnit::TestCase
-    #   self.public_methods
-    # end
-    
     def self.unique_test_method_name(name="")
-      "test_#{name}_#{@@method_count+=1}".to_sym
+      "#{TEST_METHOD_PREFIX}#{name}_#{@@method_count+=1}".to_sym
     end
     
   end

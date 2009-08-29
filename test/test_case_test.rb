@@ -143,6 +143,17 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal pass, MyClassTest.send(dynamic_method_name)
   end
   
+  def test_test_methods
+    MyClassTest.stubs(:test_one)
+    MyClassTest.stubs(:test_two)
+    MyClassTest.stubs(:not_a_test_method)
+    assert MyClassTest.test_methods.include?(:test_one)
+    assert MyClassTest.test_methods.include?(:test_two)
+    assert ! MyClassTest.test_methods.include?(:not_a_test_method)
+    assert MyClassTest.test_methods.length == 2
+  end
+  
+  
   def test_suite_returns_test_suite
     assert MyClassTest.suite.is_a?(GUnit::TestSuite)
   end
