@@ -9,7 +9,7 @@ module GUnit
     end
     
     def tests
-      @tests || []
+      @tests ||= []
     end
     
     def run(&blk)
