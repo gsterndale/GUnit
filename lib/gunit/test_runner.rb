@@ -17,11 +17,15 @@ module GUnit
   class TestRunner
     
     # TestSuites and/or TestCases
+    attr_accessor :io, :silent
     attr_writer :tests
     attr_reader :responses
     
     def initialize(*args)
       @responses = []
+      @io = STDOUT
+      STDOUT.sync = true
+      @silent = false
     end
     
     def tests
@@ -32,10 +36,17 @@ module GUnit
       self.tests.each do |test|
         case
         when test.is_a?(TestSuite)
-          test.run{|response| @responses << response }
+          test.run do |response|
+            @responses << response
+            @io.print '.' unless self.silent
+          end
         when test.is_a?(TestCase)
           @responses << test.run
         end
+      end
+      unless self.silent
+        @io.puts ""
+        @io.puts "#{@responses.length} responses"
       end
     end
     

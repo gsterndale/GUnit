@@ -4,6 +4,8 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   
   def setup
     @test_runner = GUnit::TestRunner.new
+    @test_runner.io.stubs(:print)
+    @test_runner.io.stubs(:puts)
   end
   
   def test_it_is_a_test_runner
@@ -23,9 +25,45 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     assert @test_runner.tests.is_a?(Enumerable)
   end
   
-  def test__has_empty_responses
+  def test_has_empty_responses
     assert @test_runner.responses.empty?
     assert @test_runner.responses.is_a?(Enumerable)
+  end
+  
+  def test_silent_default
+    assert ! @test_runner.silent
+  end
+  
+  def test_silent_getter_setter
+    silent = true
+    assert @test_runner.silent != silent
+    @test_runner.silent = silent
+    assert @test_runner.silent === silent
+  end
+  
+  def test_io_default
+    assert GUnit::TestRunner.new.io == STDOUT
+  end
+  
+  def test_silent_getter_setter
+    io = mock
+    assert @test_runner.io != io
+    @test_runner.io = io
+    assert @test_runner.io === io
+  end
+  
+  def test_run_silent
+    @test_runner.io = mock() # fails if any methods on io are called
+    @test_runner.silent = true
+    test_response1 = GUnit::PassResponse.new    
+    test_suite = GUnit::TestSuite.new
+    test_suite.expects(:run).yields(test_response1)
+    @test_runner.tests = [test_suite]
+    @test_runner.run
+  end
+  
+  def test_run_not_silent
+    @test_runner.silent = false
   end
   
   def test_run_runs_all_tests_saves_responses
