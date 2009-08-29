@@ -44,7 +44,7 @@ module GUnit
     
     def self.verify(*args, &blk)
       test_method_name = unique_test_method_name
-      (class <<self; self; end).send :define_method, test_method_name do
+      define_method(test_method_name) do
         verification = if blk
           GUnit::Verification.new(args.first, blk)
         else

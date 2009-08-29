@@ -45,33 +45,33 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
   end
   
   def test_verify_creates_class_method
-    method_count = MyClassTest.public_methods.length
+    method_count = MyClassTest.instance_methods.length
     args = true
     dynamic_method_name = MyClassTest.verify(args)
-    assert_equal method_count + 1, MyClassTest.public_methods.length
+    assert_equal method_count + 1, MyClassTest.instance_methods.length
     assert dynamic_method_name.to_s =~ /\d\z/
-    assert MyClassTest.respond_to?(dynamic_method_name)
+    assert MyClassTest.instance_methods.include?(dynamic_method_name.to_s)
     verification = GUnit::Verification.new
     pass = GUnit::PassResponse.new
     verification.expects(:run).returns(pass)
     GUnit::Verification.expects(:new).with(args).returns(verification)
-    assert_equal pass, MyClassTest.send(dynamic_method_name)
+    assert_equal pass, MyClassTest.new.send(dynamic_method_name)
   end
   
   def test_verify_with_block_creates_class_method
-    method_count = MyClassTest.public_methods.length
+    method_count = MyClassTest.instance_methods.length
     args = "The truth"
     blk  = Proc.new{ true }
     dynamic_method_name = MyClassTest.verify(args)
-    assert_equal method_count + 1, MyClassTest.public_methods.length
+    assert_equal method_count + 1, MyClassTest.instance_methods.length
     assert dynamic_method_name.to_s =~ /\d\z/
-    assert MyClassTest.respond_to?(dynamic_method_name)
+    assert MyClassTest.new.respond_to?(dynamic_method_name)
     verification = GUnit::Verification.new
     pass = GUnit::PassResponse.new
     verification.expects(:run).returns(pass)
 # TODO how to set expectation that blk is passed to new() ???
     GUnit::Verification.expects(:new).with(args).returns(verification)
-    assert_equal pass, MyClassTest.send(dynamic_method_name)
+    assert_equal pass, MyClassTest.new.send(dynamic_method_name)
   end
   
   def test_test_methods
@@ -90,23 +90,21 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
   end
   
   def test_assert_true
-    response = @my_test_case.assert(true)
-    assert response.is_a?(GUnit::TestResponse)
-    assert response.is_a?(GUnit::PassResponse)
+    response = @my_test_case.assert(1==1)
+    assert response === true
   end
   
   def test_assert_false
-    response = @my_test_case.assert(false)
-    assert response.is_a?(GUnit::TestResponse)
-    assert response.is_a?(GUnit::FailResponse)
+    assert_raise GUnit::AssertionFailure do
+      @my_test_case.assert(1==0)
+    end
   end
   
   def test_assert_with_exception_raised
-    boom = lambda{ raise StandardError }
-    # assert_raise(StandardError) { boom.call }
-    response = @my_test_case.assert( boom )
-    assert response.is_a?(GUnit::TestResponse)
-    assert response.is_a?(GUnit::ExceptionResponse)
+    boom = lambda{ raise RuntimeError }
+    assert_raise RuntimeError do
+      @my_test_case.assert( boom )
+    end
   end
   
 end

@@ -2,46 +2,33 @@ module GUnit
   
   class Verification
     attr_writer :message
-    attr_accessor :expected, :actual
+    attr_accessor :task
     
-    # Verification.new(true, "message")
-    # Verification.new(true)
-    # Verification.new("message") { true }
+    # Verification.new("my message")
+    # Verification.new("my message") { assert true }
+    # Verification.new() { assert true }
     def initialize(*args, &blk)
-      # args.flatten! # TODO may need to be smarter about when this happens
-      if blk
-        self.actual  = blk
-        self.message = args[0] 
-      else
-        self.actual  = args[0]
-        self.message = args[1]
-      end
-      self.expected = true
+      self.message = args[0]
+      self.task = blk if blk
     end
     
     def run
       begin
-        response = if self.matches?
+        if @task.is_a?(Proc)
+          @task.call
           PassResponse.new
         else
-          FailResponse.new
+          ToDoResponse.new
         end
+      rescue GUnit::AssertionFailure => e
+        FailResponse.new
       rescue ::StandardError => e
-        response = ExceptionResponse.new
+        ExceptionResponse.new
       end
-      response
     end
     
     def message
       @message || default_message
-    end
-    
-    def matches?
-      if @actual.is_a?(Proc)
-        @actual.call == @expected
-      else
-        @actual == @expected
-      end
     end
     
     def default_message

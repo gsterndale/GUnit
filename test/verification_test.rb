@@ -33,90 +33,62 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert_equal message, @verification1.message
   end
   
-  def test_expected_setter_getter
-    expected = "123"
-    assert_not_equal expected, @verification1.expected
-    @verification1.expected = expected
-    assert_equal expected, @verification1.expected
-  end
-  
-  def test_actual_setter_getter
-    actual = "321"
-    assert_nil @verification1.actual
-    @verification1.actual = actual
-    assert_equal actual, @verification1.actual
-  end
-  
-  def test_matches?
-    @verification1.expected = "123"
-    @verification1.actual = "321"
-    assert ! @verification1.matches?
-    @verification1.actual = "123"
-    assert @verification1.matches?
-  end
-  
-  def test_matches_with_actual_as_block
-    @verification1.expected = "123"
-    @verification1.actual = lambda{"321"}
-    assert ! @verification1.matches?
-    @verification1.actual = lambda{"123"}
-    assert @verification1.matches?
-    
-    @verification1.expected = "123"
-    @verification1.actual = Proc.new{"321"}
-    assert ! @verification1.matches?
-    @verification1.actual = Proc.new{"123"}
-    assert @verification1.matches?
-  end
-  
+  # Verification.new('one is less than two')
   def test_initialize_with_one_arg
-    actual = "Foo"
-    @verification2 = GUnit::Verification.new(actual)
-    assert @verification2.default_message === @verification2.message 
-    assert actual === @verification2.actual
-    assert true === @verification2.expected
+    message = 'one is less than two'
+    @verification2 = GUnit::Verification.new(message)
+    assert @verification2.message === message
   end
   
+  # Verification.new('one is less than two'){ assert 1<2 }
   def test_initialize_with_one_arg_and_block
-    actual  = "Foo"
-    message = "Bar"
-    @verification2 = GUnit::Verification.new(message) { actual }
+    message = 'one is less than two'
+    task    = 'my task'
+    @verification2 = GUnit::Verification.new(message) { task }
     assert message === @verification2.message
-    assert actual === @verification2.actual.call
-    assert true === @verification2.expected
+    assert task === @verification2.task.call
   end
   
-  def test_initialize_with_two_args
-    actual  = "Foo"
-    message = "Bar"
-    @verification2 = GUnit::Verification.new(actual, message)
-    assert message === @verification2.message 
-    assert actual === @verification2.actual
-    assert true === @verification2.expected
-  end
-  
-  def test_run_with_true_match
-    @verification1.actual = true
-    assert @verification1.matches?
+  def test_run_with_task_called_returns_true
+    @verification1.task = lambda { true }
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::PassResponse)
   end
   
-  def test_run_with_false_match
-    @verification1.actual = false
-    assert !@verification1.matches?
+  def test_run_with_task_called_returns_false
+    @verification1.task = lambda { false }
+    response = @verification1.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::PassResponse)
+  end
+  
+  def test_run_with_task_is_false
+    @verification1.task = false
+    response = @verification1.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ToDoResponse)
+  end
+  
+  def test_run_with_task_is_nil
+    @verification1.task = nil
+    response = @verification1.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ToDoResponse)
+  end
+  
+  def test_run_with_assertion_failure_exception
+    @verification1.task = lambda { raise GUnit::AssertionFailure }
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::FailResponse)
   end
   
-  def test_run_with_raising_match
-    @verification1.actual = lambda{ raise StandardError }
-    assert_raise(StandardError) {@verification1.matches?}
+  def test_run_with_random_exception
+    @verification1.task = lambda { raise 'Boom' }
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::ExceptionResponse)
   end
-  
+    
 end
