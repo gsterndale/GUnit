@@ -1,8 +1,3 @@
-require 'gunit/test_response'
-require 'gunit/pass_response'
-require 'gunit/fail_response'
-require 'gunit/exception_response'
-
 module GUnit
   
   class Verification

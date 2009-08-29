@@ -1,4 +1,4 @@
-require 'gunit'
+require File.dirname(__FILE__) + '/../lib/gunit'
 
 class Foo
 end
