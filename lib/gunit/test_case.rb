@@ -38,7 +38,7 @@ module GUnit
     end
 
     def self.test_methods(prefix=TEST_METHOD_PREFIX)
-      method_names = singleton_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.singleton_methods.include?(method) }
+      method_names = instance_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.instance_methods.include?(method) }
       method_names.map!{|m| m.to_sym }
     end
     
