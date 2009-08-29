@@ -9,8 +9,10 @@ module GUnit
     
     # TestSuites and/or TestCases
     attr_writer :tests
+    attr_reader :responses
     
-    def initialize()
+    def initialize(*args)
+      @responses = []
     end
     
     def tests
@@ -18,7 +20,14 @@ module GUnit
     end
     
     def run
-      self.tests.each(&:run)
+      self.tests.each do |test|
+        case
+        when test.is_a?(TestSuite)
+          test.run{|response| @responses << response }
+        when test.is_a?(TestCase)
+          @responses << test.run
+        end
+      end
     end
     
   end

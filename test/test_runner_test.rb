@@ -23,13 +23,25 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     assert @test_runner.tests.is_a?(Enumerable)
   end
   
-  def test_run_runs_all_tests
-    suite1 = mock
-    suite1.expects(:run)
-    suite2 = mock
-    suite2.expects(:run)
-    @test_runner.tests = [suite1, suite2]
+  def test__has_empty_responses
+    assert @test_runner.responses.empty?
+    assert @test_runner.responses.is_a?(Enumerable)
+  end
+  
+  def test_run_runs_all_tests_saves_responses
+    test_response1 = GUnit::PassResponse.new
+    test_response2 = GUnit::FailResponse.new
+    test_response3 = GUnit::ExceptionResponse.new
+    test_suite = GUnit::TestSuite.new
+    test_suite.expects(:run).multiple_yields(test_response1, test_response2)
+    test_case = GUnit::TestCase.new
+    test_case.expects(:run).returns(test_response3)
+    @test_runner.tests = [test_suite, test_case]
     @test_runner.run
+    assert @test_runner.responses.include?(test_response1)
+    assert @test_runner.responses.include?(test_response2)
+    assert @test_runner.responses.include?(test_response3)
+    assert @test_runner.responses.length == 3
   end
   
 end

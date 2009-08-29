@@ -2,7 +2,7 @@ module GUnit
   
   class TestSuite
     
-    # TestSuites and/or TestCases
+    # TestCases (TODO and/or TestSuites)
     attr_writer :tests
     
     def initialize()
@@ -12,8 +12,16 @@ module GUnit
       @tests || []
     end
     
-    def run
-      self.tests.each(&:run)
+    def run(&blk)
+      self.tests.each do |test|
+        case
+        when test.is_a?(TestSuite)
+          test.run{|response| blk.call(response) if blk }
+        when test.is_a?(TestCase)
+          response = test.run
+          blk.call(response) if blk
+        end
+      end
     end
     
   end
