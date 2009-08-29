@@ -10,13 +10,26 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     assert @test_runner.is_a?(GUnit::TestRunner)
   end
   
-  def test_suites_getter_setter
-    suites = [GUnit::TestSuite.new, GUnit::TestCase.new]
-    assert @test_runner.suites != suites
-    @test_runner.suites = suites
-    assert @test_runner.suites == suites
+  def test_tests_getter_setter
+    tests = [GUnit::TestSuite.new, GUnit::TestCase.new]
+    assert @test_runner.tests != tests
+    @test_runner.tests = tests
+    assert @test_runner.tests == tests
   end
   
+  def test_tests_set_nil_has_empty_tests
+    @test_runner.tests = nil
+    assert @test_runner.tests.empty?
+    assert @test_runner.tests.is_a?(Enumerable)
+  end
   
+  def test_run_runs_all_tests
+    suite1 = mock
+    suite1.expects(:run)
+    suite2 = mock
+    suite2.expects(:run)
+    @test_runner.tests = [suite1, suite2]
+    @test_runner.run
+  end
   
 end
