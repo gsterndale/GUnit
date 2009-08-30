@@ -44,7 +44,7 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     @my_test_case1.run
   end
   
-  def test_verify_creates_class_method
+  def test_verify_creates_instance_method
     method_count = MyClassTest.instance_methods.length
     args = true
     dynamic_method_name = MyClassTest.verify(args)
@@ -58,7 +58,7 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal pass, MyClassTest.new.send(dynamic_method_name)
   end
   
-  def test_verify_with_block_creates_class_method
+  def test_verify_with_block_creates_instance_method
     method_count = MyClassTest.instance_methods.length
     args = "The truth"
     blk  = Proc.new{ true }
