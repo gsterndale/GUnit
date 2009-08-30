@@ -16,6 +16,11 @@ module GUnit
   
   class TestRunner
     
+    PASS_CHAR      = '.'
+    FAIL_CHAR      = 'F'
+    TODO_CHAR      = '*'
+    EXCEPTION_CHAR = 'E'
+    
     # TestSuites and/or TestCases
     attr_accessor :io, :silent
     attr_writer :tests
@@ -38,15 +43,49 @@ module GUnit
         when test.is_a?(TestSuite)
           test.run do |response|
             @responses << response
-            @io.print '.' unless self.silent
+            @io.print self.class.response_character(response) unless self.silent
           end
         when test.is_a?(TestCase)
-          @responses << test.run
+          response = test.run
+          @responses << response
+          @io.print self.class.response_character(response) unless self.silent
         end
       end
+      
       unless self.silent
         @io.puts ""
-        @io.puts "#{@responses.length} responses"
+        @io.puts "#{@responses.length} verifications: #{passes.length} passed, #{fails.length} failed, #{exceptions.length} exceptions, #{to_dos.length} to-dos"
+      end
+    end
+    
+    def passes
+      @responses.find_all{|r| r.is_a? PassResponse }
+    end
+    
+    def fails
+      @responses.find_all{|r| r.is_a? FailResponse }
+    end
+    
+    def exceptions
+      @responses.find_all{|r| r.is_a? ExceptionResponse }
+    end
+    
+    def to_dos
+      @responses.find_all{|r| r.is_a? ToDoResponse }
+    end
+    
+  protected
+    
+    def self.response_character(response)
+      case
+      when response.is_a?(PassResponse)
+        PASS_CHAR
+      when response.is_a?(FailResponse)
+        FAIL_CHAR
+      when response.is_a?(ExceptionResponse)
+        EXCEPTION_CHAR
+      when response.is_a?(ToDoResponse)
+        TODO_CHAR
       end
     end
     

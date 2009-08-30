@@ -4,6 +4,8 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   
   def setup
     @test_runner = GUnit::TestRunner.new
+    io = Object.new
+    @test_runner.io = io
     @test_runner.io.stubs(:print)
     @test_runner.io.stubs(:puts)
   end
@@ -64,22 +66,49 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   
   def test_run_not_silent
     @test_runner.silent = false
+    io = mock
+    io.expects(:print).with(GUnit::TestRunner::PASS_CHAR).at_least(1)
+    io.expects(:print).with(GUnit::TestRunner::FAIL_CHAR).at_least(1)
+    io.expects(:print).with(GUnit::TestRunner::EXCEPTION_CHAR).at_least(1)
+    io.expects(:print).with(GUnit::TestRunner::TODO_CHAR).at_least(1)
+    io.stubs(:puts)
+    @test_runner.io = io
+    
+    test_response1 = GUnit::PassResponse.new
+    test_response2 = GUnit::FailResponse.new
+    test_response3 = GUnit::ExceptionResponse.new
+    test_response4 = GUnit::ToDoResponse.new
+    test_suite = GUnit::TestSuite.new
+    test_suite.expects(:run).multiple_yields(test_response1, test_response2, test_response4)
+    test_case = GUnit::TestCase.new
+    test_case.expects(:run).returns(test_response3)
+    @test_runner.tests = [test_suite, test_case]
+
+    @test_runner.run
   end
   
   def test_run_runs_all_tests_saves_responses
     test_response1 = GUnit::PassResponse.new
     test_response2 = GUnit::FailResponse.new
     test_response3 = GUnit::ExceptionResponse.new
+    test_response4 = GUnit::ToDoResponse.new
     test_suite = GUnit::TestSuite.new
-    test_suite.expects(:run).multiple_yields(test_response1, test_response2)
+    test_suite.expects(:run).multiple_yields(test_response1, test_response2, test_response4)
     test_case = GUnit::TestCase.new
     test_case.expects(:run).returns(test_response3)
     @test_runner.tests = [test_suite, test_case]
+    
     @test_runner.run
+    
     assert @test_runner.responses.include?(test_response1)
+    assert @test_runner.passes.include?(test_response1)
     assert @test_runner.responses.include?(test_response2)
+    assert @test_runner.fails.include?(test_response2)
     assert @test_runner.responses.include?(test_response3)
-    assert @test_runner.responses.length == 3
+    assert @test_runner.exceptions.include?(test_response3)
+    assert @test_runner.responses.include?(test_response4)
+    assert @test_runner.to_dos.include?(test_response4)
+    assert @test_runner.responses.length == 4
   end
   
 end
