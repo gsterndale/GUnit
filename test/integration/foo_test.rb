@@ -1,9 +1,27 @@
-require File.dirname(__FILE__) + '/../lib/gunit'
+require 'test_helper'
 
 class Foo
 end
 
-class FooTest < GUnit::TestCase
+class FooGUnitTest < GUnit::TestCase
+  
+  verify do
+    assert 1 == 1
+  end
+  
+  verify "truth" do
+    assert true
+  end
+  
+  verify "failure here" do
+    assert false
+  end
+  
+  verify "exceptional" do
+    raise "BOOM!"
+  end
+  
+  verify "not dun yet"
   
   # context "An instance of Foo"
   #   # One setup per context
@@ -25,6 +43,10 @@ class FooTest < GUnit::TestCase
   #   verify "true is true" do
   #     assert true
   #   end
+  #   
+  #   # Custom macros
+  #   verify_validity @foo
+  #   verify_dirty @foo
   #   
   #   # Many verifies per context, some share fixtures
   #   # setup, exercise and teardown will only be run once for all methods in this context with the second param == true
@@ -78,5 +100,24 @@ class FooTest < GUnit::TestCase
   #     end
   #   end
   # end
+  
+end
+
+class FooGUnitTestTest < Test::Unit::TestCase
+  def setup
+    @test_runner = GUnit::TestRunner.new
+    @test_runner.io = Object.new
+    @test_runner.io.stubs(:print)
+    @test_runner.io.stubs(:puts)
+    @test_runner.tests << FooGUnitTest.suite
+  end
+  
+  def test_run_test_runner
+    @test_runner.run
+    assert @test_runner.passes.length == 2
+    assert @test_runner.fails.length == 1
+    assert @test_runner.exceptions.length == 1
+    assert @test_runner.to_dos.length == 1
+  end
   
 end
