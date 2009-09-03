@@ -74,6 +74,23 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal pass, MyClassTest.new.send(dynamic_method_name)
   end
   
+  def test_setup_pushes_to_setups
+    msg = "Create some fixtures"
+    MyClassTest.setup msg
+    assert_not_nil setup = MyClassTest.setups.last
+    assert setup.is_a?(GUnit::Setup)
+    assert setup.message == msg
+  end
+  
+  def test_setup_with_block_pushes_to_setups
+    msg = "Create some fixtures"
+    MyClassTest.setup(msg) { @foo = "bar" }
+    assert_not_nil setup = MyClassTest.setups.last
+    assert setup.is_a?(GUnit::Setup)
+    assert setup.task.call == (@foo = "bar")
+    assert setup.message == msg
+  end
+  
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
     assert MyClassTest.test_methods.include?(:test_two)

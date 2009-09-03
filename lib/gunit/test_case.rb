@@ -19,6 +19,7 @@ module GUnit
     
     attr_accessor :method_name
     @@method_count = 0
+    @@setups = []
     
     def initialize(method=nil)
       self.method_name = method
@@ -41,6 +42,20 @@ module GUnit
       method_names = instance_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.instance_methods.include?(method) }
       method_names.map!{|m| m.to_sym }
     end
+    
+    def self.setups
+      @@setups
+    end
+    
+    def self.setup(*args, &blk)
+      setup = if blk
+        GUnit::Setup.new(args.first, &blk)
+      else
+        GUnit::Setup.new(args.first)
+      end
+      @@setups << setup
+    end
+    
     
     def self.verify(*args, &blk)
       test_method_name = unique_test_method_name
