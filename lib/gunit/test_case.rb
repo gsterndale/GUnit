@@ -46,6 +46,7 @@ module GUnit
       test_method_name = unique_test_method_name
       define_method(test_method_name) do
         verification = if blk
+          blk = blk.bind(self)
           GUnit::Verification.new(args.first, &blk)
         else
           GUnit::Verification.new(args.first)

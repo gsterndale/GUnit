@@ -1,5 +1,7 @@
 $:.unshift File.dirname(__FILE__)
 
+require 'gunit/proc_extensions'
+
 require 'gunit/assertions'
 
 require 'gunit/test_case'
