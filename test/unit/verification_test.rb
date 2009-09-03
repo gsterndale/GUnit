@@ -1,4 +1,4 @@
-require 'test_helper'
+require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 # class MyClassTest < GUnit::TestCase
 #   verify_is_a @my_class, MyClass
