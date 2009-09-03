@@ -46,16 +46,16 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
   
   def test_verify_creates_instance_method
     method_count = MyClassTest.instance_methods.length
-    args = true
+    args = "TODO add some feature"
     dynamic_method_name = MyClassTest.verify(args)
     assert_equal method_count + 1, MyClassTest.instance_methods.length
     assert dynamic_method_name.to_s =~ /\d\z/
     assert MyClassTest.instance_methods.include?(dynamic_method_name.to_s)
     verification = GUnit::Verification.new
-    pass = GUnit::PassResponse.new
-    verification.expects(:run).returns(pass)
+    todo = GUnit::ToDoResponse.new
+    verification.expects(:run).returns(todo)
     GUnit::Verification.expects(:new).with(args).returns(verification)
-    assert_equal pass, MyClassTest.new.send(dynamic_method_name)
+    assert_equal todo, MyClassTest.new.send(dynamic_method_name)
   end
   
   def test_verify_with_block_creates_instance_method
