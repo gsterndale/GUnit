@@ -136,6 +136,18 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal "zip", @my_test_case1.instance_variable_get("@foo")
   end
   
+  def test_run_runs_teardowns_in_reverse_order
+    MyClassTest.setup { @foo = "bar" }
+    MyClassTest.teardown { @foo = "zip" }
+    MyClassTest.teardown { @foo = "zap" }
+    assert_not_nil setup = MyClassTest.setups.last
+    assert_not_nil setup = MyClassTest.teardowns.last
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.run
+    assert_equal "zip", @my_test_case1.instance_variable_get("@foo")
+  end
+  
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
     assert MyClassTest.test_methods.include?(:test_two)

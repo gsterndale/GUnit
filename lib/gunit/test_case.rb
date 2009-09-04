@@ -93,7 +93,7 @@ module GUnit
     end
   
     def run_teardowns
-      @@teardowns.each {|t| t.run(self) }
+      @@teardowns.reverse.each {|t| t.run(self) }
     end
 
     def self.unique_test_method_name(name="")
