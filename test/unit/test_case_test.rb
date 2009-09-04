@@ -91,6 +91,16 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert setup.message == msg
   end
   
+  def test_run_runs_setups
+    MyClassTest.setup { @foo = "bar" }
+    assert_not_nil setup = MyClassTest.setups.last
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.run
+    assert_equal "bar", @my_test_case1.instance_variable_get("@foo")
+  end
+  
+  
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
     assert MyClassTest.test_methods.include?(:test_two)

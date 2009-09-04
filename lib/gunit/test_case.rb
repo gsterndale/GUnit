@@ -26,6 +26,7 @@ module GUnit
     end
     
     def run
+      self.run_setups
       self.send(self.method_name.to_sym)
     end
     
@@ -56,7 +57,6 @@ module GUnit
       @@setups << setup
     end
     
-    
     def self.verify(*args, &blk)
       test_method_name = unique_test_method_name
       define_method(test_method_name) do
@@ -72,6 +72,10 @@ module GUnit
     end
     
   protected
+  
+    def run_setups
+      @@setups.each {|s| s.run(self) }
+    end
     
     def self.unique_test_method_name(name="")
       "#{TEST_METHOD_PREFIX}#{name}_#{@@method_count+=1}".to_sym

@@ -5,6 +5,14 @@ end
 
 class FooGUnitTest < GUnit::TestCase
   
+  setup do
+    @foo = 'bar'
+  end
+  
+  verify "variable from setup" do
+    assert @foo == 'bar'
+  end
+  
   verify do
     assert 1 == 1
   end
@@ -15,6 +23,10 @@ class FooGUnitTest < GUnit::TestCase
   
   verify "failure here" do
     assert false
+  end
+
+  verify "another failure here" do
+    assert @foo == 'wrong'
   end
   
   verify "exceptional" do
@@ -114,10 +126,10 @@ class FooGUnitTestTest < Test::Unit::TestCase
   
   def test_run_test_runner
     @test_runner.run
-    assert @test_runner.passes.length == 2
-    assert @test_runner.fails.length == 1
-    assert @test_runner.exceptions.length == 1
-    assert @test_runner.to_dos.length == 1
+    assert_equal 1, @test_runner.exceptions.length
+    assert_equal 1, @test_runner.to_dos.length
+    assert_equal 3, @test_runner.fails.length
+    assert_equal 2, @test_runner.passes.length
   end
   
 end
