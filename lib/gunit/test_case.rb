@@ -20,6 +20,7 @@ module GUnit
     attr_accessor :method_name
     @@method_count = 0
     @@setups = []
+    @@teardowns = []
     
     def initialize(method=nil)
       self.method_name = method
@@ -27,7 +28,9 @@ module GUnit
     
     def run
       self.run_setups
-      self.send(self.method_name.to_sym)
+      response = self.send(self.method_name.to_sym)
+      self.run_teardowns
+      response
     end
     
     def self.suite
@@ -48,6 +51,10 @@ module GUnit
       @@setups
     end
     
+    def self.teardowns
+      @@teardowns
+    end
+    
     def self.setup(*args, &blk)
       setup = if blk
         GUnit::Setup.new(args.first, &blk)
@@ -55,6 +62,15 @@ module GUnit
         GUnit::Setup.new(args.first)
       end
       @@setups << setup
+    end
+    
+    def self.teardown(*args, &blk)
+      teardown = if blk
+        GUnit::Teardown.new(args.first, &blk)
+      else
+        GUnit::Teardown.new(args.first)
+      end
+      @@teardowns << teardown
     end
     
     def self.verify(*args, &blk)
@@ -75,7 +91,11 @@ module GUnit
     def run_setups
       @@setups.each {|s| s.run(self) }
     end
-    
+  
+    def run_teardowns
+      @@teardowns.each {|t| t.run(self) }
+    end
+
     def self.unique_test_method_name(name="")
       "#{TEST_METHOD_PREFIX}#{name}_#{@@method_count+=1}".to_sym
     end

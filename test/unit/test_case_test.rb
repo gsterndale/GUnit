@@ -44,6 +44,14 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     @my_test_case1.run
   end
   
+  def test_run_returns_method_result
+    method_name = "my_method"
+    result      = "my result"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.expects(method_name.to_sym).returns(result)
+    assert_equal result, @my_test_case1.run
+  end
+  
   def test_verify_creates_instance_method
     method_count = MyClassTest.instance_methods.length
     args = "TODO add some feature"
@@ -100,6 +108,33 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal "bar", @my_test_case1.instance_variable_get("@foo")
   end
   
+  def test_teardown_pushes_to_teardowns
+    msg = "Create some fixtures"
+    MyClassTest.teardown msg
+    assert_not_nil teardown = MyClassTest.teardowns.last
+    assert teardown.is_a?(GUnit::Teardown)
+    assert teardown.message == msg
+  end
+  
+  def test_teardown_with_block_pushes_to_teardowns
+    msg = "Create some fixtures"
+    MyClassTest.teardown(msg) { @foo = "bar" }
+    assert_not_nil teardown = MyClassTest.teardowns.last
+    assert teardown.is_a?(GUnit::Teardown)
+    assert teardown.task.call == (@foo = "bar")
+    assert teardown.message == msg
+  end
+  
+  def test_run_runs_teardowns
+    MyClassTest.setup { @foo = "bar" }
+    MyClassTest.teardown { @foo = "zip" }
+    assert_not_nil setup = MyClassTest.setups.last
+    assert_not_nil setup = MyClassTest.teardowns.last
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.run
+    assert_equal "zip", @my_test_case1.instance_variable_get("@foo")
+  end
   
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
