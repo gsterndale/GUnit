@@ -126,10 +126,10 @@ class FooGUnitTestTest < Test::Unit::TestCase
   
   def test_run_test_runner
     @test_runner.run
+    assert_equal 3, @test_runner.passes.length
+    assert_equal 2, @test_runner.fails.length
     assert_equal 1, @test_runner.exceptions.length
     assert_equal 1, @test_runner.to_dos.length
-    assert_equal 3, @test_runner.fails.length
-    assert_equal 2, @test_runner.passes.length
   end
   
 end

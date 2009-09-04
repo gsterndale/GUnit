@@ -83,5 +83,15 @@ class GUnit::SetupTest < Test::Unit::TestCase
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::ExceptionResponse)
   end
-    
+  
+  def test_run_with_binding
+    obj = Object.new
+    obj.instance_variable_set("@foo", "bar")
+    @setup1.task = Proc.new { instance_variable_set("@foo", "zip") }
+    @setup1.run
+    assert_equal "bar", obj.instance_variable_get("@foo")
+    @setup1.run(obj)
+    assert_equal "zip", obj.instance_variable_get("@foo")
+  end
+  
 end

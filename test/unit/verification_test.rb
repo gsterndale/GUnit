@@ -77,6 +77,16 @@ class GUnit::VerificationTest < Test::Unit::TestCase
     assert response.is_a?(GUnit::ToDoResponse)
   end
   
+  def test_run_with_binding
+    obj = Object.new
+    obj.instance_variable_set("@foo", "bar")
+    @verification1.task = Proc.new { instance_variable_set("@foo", "zip") }
+    @verification1.run
+    assert_equal "bar", obj.instance_variable_get("@foo")
+    @verification1.run(obj)
+    assert_equal "zip", obj.instance_variable_get("@foo")
+  end
+  
   def test_run_with_assertion_failure_exception
     @verification1.task = lambda { raise GUnit::AssertionFailure }
     response = @verification1.run

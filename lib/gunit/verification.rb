@@ -12,10 +12,11 @@ module GUnit
       self.task = blk if blk
     end
     
-    def run
+    def run(binding=self)
       begin
         if @task.is_a?(Proc)
-          @task.call
+          bound_task = @task.bind(binding)
+          bound_task.call
           PassResponse.new
         else
           ToDoResponse.new

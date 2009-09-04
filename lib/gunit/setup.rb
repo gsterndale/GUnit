@@ -15,8 +15,8 @@ module GUnit
     def run(binding=self)
       begin
         if @task.is_a?(Proc)
-          @task = @task.bind(binding)
-          @task.call
+          bound_task = @task.bind(binding)
+          bound_task.call
         end
         return true
       rescue GUnit::AssertionFailure => e
