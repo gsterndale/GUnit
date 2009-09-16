@@ -1,6 +1,6 @@
 = gunit
 
-Description goes here.
+Unit Test. Gangsta style.
 
 == Note on Patches/Pull Requests
  
@@ -15,4 +15,4 @@ Description goes here.
 
 == Copyright
 
-Copyright (c) 2009 Greg. See LICENSE for details.
+Copyright (c) 2009 Greg Sterndale. See LICENSE for details.
