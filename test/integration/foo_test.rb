@@ -118,7 +118,7 @@ end
 class FooGUnitTestTest < Test::Unit::TestCase
   def setup
     @test_runner = GUnit::TestRunner.new
-    @test_runner.io = Object.new
+    @test_runner.io = mock('io')
     @test_runner.io.stubs(:print)
     @test_runner.io.stubs(:puts)
     @test_runner.tests << FooGUnitTest.suite
