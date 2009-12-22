@@ -52,12 +52,19 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal result, @my_test_case1.run
   end
   
+  def test_message_to_test_method_name
+    msg = "Check for expected outcome"
+    method_name = MyClassTest.message_to_test_method_name(msg)
+    assert method_name.is_a?(Symbol)
+    assert method_name.to_s =~ /#{MyClassTest::TEST_METHOD_PREFIX}_check_for_expected_outcome/
+  end
+  
   def test_verify_creates_instance_method
     method_count = MyClassTest.instance_methods.length
     args = "TODO add some feature"
     dynamic_method_name = MyClassTest.verify(args)
     assert_equal method_count + 1, MyClassTest.instance_methods.length
-    assert dynamic_method_name.to_s =~ /\d\z/
+    assert dynamic_method_name.to_s =~ /#{MyClassTest::TEST_METHOD_PREFIX}/
     assert MyClassTest.instance_methods.include?(dynamic_method_name.to_s)
     verification = GUnit::Verification.new
     todo = GUnit::ToDoResponse.new
@@ -72,7 +79,7 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     blk  = Proc.new{ true }
     dynamic_method_name = MyClassTest.verify(args)
     assert_equal method_count + 1, MyClassTest.instance_methods.length
-    assert dynamic_method_name.to_s =~ /\d\z/
+    assert dynamic_method_name.to_s =~ /#{MyClassTest::TEST_METHOD_PREFIX}/
     assert MyClassTest.new.respond_to?(dynamic_method_name)
     verification = GUnit::Verification.new
     pass = GUnit::PassResponse.new
@@ -82,85 +89,47 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal pass, MyClassTest.new.send(dynamic_method_name)
   end
   
-  def test_setup_pushes_to_setups
-    msg = "Create some fixtures"
-    MyClassTest.setup msg
-    assert_not_nil setup = MyClassTest.setups.last
-    assert setup.is_a?(GUnit::Setup)
-    assert setup.message == msg
-  end
-  
-  def test_setup_with_block_pushes_to_setups
-    msg = "Create some fixtures"
-    MyClassTest.setup(msg) { @foo = "bar" }
-    assert_not_nil setup = MyClassTest.setups.last
-    assert setup.is_a?(GUnit::Setup)
-    assert setup.task.call == (@foo = "bar")
-    assert setup.message == msg
-  end
-  
   def test_run_runs_setups
     MyClassTest.setup { @foo = "bar" }
-    assert_not_nil setup = MyClassTest.setups.last
     method_name = "test_one"
     @my_test_case1 = MyClassTest.new(method_name)
     @my_test_case1.run
     assert_equal "bar", @my_test_case1.instance_variable_get("@foo")
   end
   
-  def test_teardown_pushes_to_teardowns
-    msg = "Create some fixtures"
-    MyClassTest.teardown msg
-    assert_not_nil teardown = MyClassTest.teardowns.last
-    assert teardown.is_a?(GUnit::Teardown)
-    assert teardown.message == msg
-  end
-  
-  def test_teardown_with_block_pushes_to_teardowns
-    msg = "Create some fixtures"
-    MyClassTest.teardown(msg) { @foo = "bar" }
-    assert_not_nil teardown = MyClassTest.teardowns.last
-    assert teardown.is_a?(GUnit::Teardown)
-    assert teardown.task.call == (@foo = "bar")
-    assert teardown.message == msg
-  end
-  
   def test_run_runs_teardowns
+    @my_test_case2 = MyClassTest.new
     MyClassTest.setup { @foo = "bar" }
     MyClassTest.teardown { @foo = "zip" }
-    assert_not_nil setup = MyClassTest.setups.last
-    assert_not_nil setup = MyClassTest.teardowns.last
     method_name = "test_one"
-    @my_test_case1 = MyClassTest.new(method_name)
-    @my_test_case1.run
-    assert_equal "zip", @my_test_case1.instance_variable_get("@foo")
+    @my_test_case2 = MyClassTest.new(method_name)
+    @my_test_case2.run
+    assert_equal "zip", @my_test_case2.instance_variable_get("@foo")
   end
   
   def test_run_runs_teardowns_in_reverse_order
+    @my_test_case3 = MyClassTest.new
     MyClassTest.setup { @foo = "bar" }
     MyClassTest.teardown { @foo = "zip" }
     MyClassTest.teardown { @foo = "zap" }
-    assert_not_nil setup = MyClassTest.setups.last
-    assert_not_nil setup = MyClassTest.teardowns.last
     method_name = "test_one"
-    @my_test_case1 = MyClassTest.new(method_name)
-    @my_test_case1.run
-    assert_equal "zip", @my_test_case1.instance_variable_get("@foo")
+    @my_test_case3 = MyClassTest.new(method_name)
+    @my_test_case3.run
+    assert_equal "zip", @my_test_case3.instance_variable_get("@foo")
   end
   
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
     assert MyClassTest.test_methods.include?(:test_two)
     assert ! MyClassTest.test_methods.include?(:not_a_test_method)
-    assert MyClassTest.test_methods.length == 2
   end
   
   def test_suite_returns_test_suite_with_test_cases
     test_suite = MyClassTest.suite
     assert test_suite.is_a?(GUnit::TestSuite)
-    assert test_suite.tests.length == 2
     assert test_suite.tests.find{|t| t.method_name == :test_one }
     assert test_suite.tests.find{|t| t.method_name == :test_two }
+    assert_nil test_suite.tests.find{|t| t.method_name == :not_a_test_method}
   end
   
   def test_assert_true
@@ -179,6 +148,54 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_raise RuntimeError do
       @my_test_case.assert( boom )
     end
+  end
+  
+  def test_verify_inside_context_defines_test_method_with_context
+    context_msg   = "In some context"
+    verify_msg    = "This should be the case A"
+    MyClassTest.context(context_msg) do
+      verify(verify_msg) { true }
+    end
+    method_name = MyClassTest.message_to_test_method_name(verify_msg)
+    assert MyClassTest.method_defined?(method_name)
+    context = MyClassTest.context_for_method(method_name)
+    assert_not_nil context
+    assert_equal context_msg, context.message
+  end
+  
+  def test_setup_and_teardown_inside_context_creates_context_with_setup_and_teardown
+    context_msg   = "In some context"
+    setup_msg     = "Given this"
+    teardown_msg  = "Housekeeping"
+    verify_msg    = "This should be the case B"
+    MyClassTest.context(context_msg) do
+      setup(setup_msg) { @foo = "abc" }
+      teardown(teardown_msg) { @foo = "def" }
+      verify(verify_msg) { true }
+    end
+    method_name = MyClassTest.message_to_test_method_name(verify_msg)
+    context = MyClassTest.context_for_method(method_name)
+    assert_equal setup_msg, context.setups.last.message
+    assert_equal teardown_msg, context.teardowns.last.message
+  end
+  
+  def test_context_creates_context_with_parent
+    context_msg   = "In some context"
+    verify_msg    = "This should be the case C"
+    MyClassTest.context(context_msg) do
+      verify(verify_msg) { true }
+    end
+    method_name = MyClassTest.message_to_test_method_name(verify_msg)
+    context = MyClassTest.context_for_method(method_name)
+    assert_not_nil context.parent
+    assert context.parent.is_a?(GUnit::Context)
+  end
+  
+  def test_test_method_outside_context_block_has_context
+    method_name = 'test_one'
+    context = MyClassTest.context_for_method(method_name)
+    assert_not_nil context
+    assert context.is_a?(GUnit::Context)
   end
   
 end

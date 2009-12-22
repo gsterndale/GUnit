@@ -15,15 +15,20 @@ module GUnit
     
     include Assertions
     
-    TEST_METHOD_PREFIX = 'test_'
+    TEST_METHOD_PREFIX = 'test'
     
-    attr_accessor :method_name
-    @@method_count = 0
-    @@setups = []
-    @@teardowns = []
+    attr_accessor :method_name, :context
+    
+    @@method_count          = 0
+    @@context_stack         = [ GUnit::Context.new ]
+    @@test_method_contexts  = {}
     
     def initialize(method=nil)
       self.method_name = method
+    end
+    
+    def context
+      self.class.context_for_method(self.method_name)
     end
     
     def run
@@ -47,12 +52,20 @@ module GUnit
       method_names.map!{|m| m.to_sym }
     end
     
-    def self.setups
-      @@setups
+    def self.context_for_method(method_name)
+      @@test_method_contexts[method_name] || @@context_stack.first
     end
     
-    def self.teardowns
-      @@teardowns
+    def self.context(*args, &blk)
+      new_context = if blk
+        GUnit::Context.new(args.first, &blk)
+      else
+        GUnit::Context.new(args.first)
+      end
+      new_context.parent = current_context
+      @@context_stack << new_context
+      current_context.run(self)
+      @@context_stack.pop
     end
     
     def self.setup(*args, &blk)
@@ -61,7 +74,7 @@ module GUnit
       else
         GUnit::Setup.new(args.first)
       end
-      @@setups << setup
+      current_context.setups << setup
     end
     
     def self.teardown(*args, &blk)
@@ -70,11 +83,11 @@ module GUnit
       else
         GUnit::Teardown.new(args.first)
       end
-      @@teardowns << teardown
+      current_context.teardowns << teardown
     end
     
     def self.verify(*args, &blk)
-      test_method_name = unique_test_method_name
+      test_method_name = message_to_unique_test_method_name(args.first)
       define_method(test_method_name) do
         verification = if blk
           GUnit::Verification.new(args.first, &blk)
@@ -83,21 +96,39 @@ module GUnit
         end
         verification.run(self)
       end
+      @@method_count += 1
+      @@test_method_contexts[test_method_name] = current_context
       test_method_name
     end
     
+    def self.message_to_test_method_name(msg)
+      if msg && msg != ''
+        [TEST_METHOD_PREFIX, msg.downcase.gsub(/ |@/,'_')].join('_').to_sym
+      else
+        TEST_METHOD_PREFIX.to_sym
+      end
+    end
+    
   protected
-  
+    
     def run_setups
-      @@setups.each {|s| s.run(self) }
+      self.context.setups.each {|s| s.run(self) }
     end
   
     def run_teardowns
-      @@teardowns.reverse.each {|t| t.run(self) }
+      self.context.teardowns.reverse.each {|t| t.run(self) } if self.context
+    end
+    
+    def self.current_context
+      @@context_stack.last
     end
 
-    def self.unique_test_method_name(name="")
-      "#{TEST_METHOD_PREFIX}#{name}_#{@@method_count+=1}".to_sym
+    def self.message_to_unique_test_method_name(msg)
+      name = message_to_test_method_name(msg)
+      if method_defined?(name)
+        name = [name.to_s, (@@method_count+1).to_s].join('_').to_sym
+      end
+      name
     end
     
   end

@@ -4,10 +4,6 @@ require 'gunit/proc_extensions'
 
 require 'gunit/assertions'
 
-require 'gunit/test_case'
-require 'gunit/test_suite'
-require 'gunit/test_runner'
-
 require 'gunit/context'
 
 require 'gunit/exercise'
@@ -20,4 +16,11 @@ require 'gunit/exception_response'
 require 'gunit/fail_response'
 require 'gunit/pass_response'
 require 'gunit/to_do_response'
+
+require 'gunit/test_case'
+require 'gunit/test_suite'
+require 'gunit/test_runner'
+
+
+
 
