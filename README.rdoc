@@ -2,7 +2,9 @@
 
 Unit Test. Gangsta style.
 
-== A fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit.
+GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. 
+
+Just playin'. TestUnit is our boy.
 
 == Rolling with the following features:
 * Nested contexts

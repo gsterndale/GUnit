@@ -9,7 +9,7 @@ begin
     gem.description = %Q{TODO: longer description of your gem}
     gem.email = "greg@plectix.com"
     gem.homepage = "http://github.com/gsterndale/gunit"
-    gem.authors = ["Greg"]
+    gem.authors = ["Greg Sterndale"]
     gem.add_development_dependency "thoughtbot-shoulda"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
