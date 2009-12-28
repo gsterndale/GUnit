@@ -65,6 +65,13 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   end
   
   def test_run_not_silent
+    fail_response_message = "Whoops. Failed."
+    
+    test_response1 = GUnit::PassResponse.new
+    test_response2 = GUnit::FailResponse.new(fail_response_message)
+    test_response3 = GUnit::ExceptionResponse.new
+    test_response4 = GUnit::ToDoResponse.new
+    
     @test_runner.silent = false
     io = mock
     io.expects(:print).with(GUnit::TestRunner::PASS_CHAR).at_least(1)
@@ -72,12 +79,9 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     io.expects(:print).with(GUnit::TestRunner::EXCEPTION_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::TODO_CHAR).at_least(1)
     io.stubs(:puts)
+    io.expects(:puts).with(fail_response_message).at_least(1)
     @test_runner.io = io
     
-    test_response1 = GUnit::PassResponse.new
-    test_response2 = GUnit::FailResponse.new
-    test_response3 = GUnit::ExceptionResponse.new
-    test_response4 = GUnit::ToDoResponse.new
     test_suite = GUnit::TestSuite.new
     test_suite.expects(:run).multiple_yields(test_response1, test_response2, test_response4)
     test_case = GUnit::TestCase.new

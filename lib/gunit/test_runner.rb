@@ -54,6 +54,10 @@ module GUnit
       
       unless self.silent
         @io.puts ""
+        fails.each do |fail|
+          @io.puts ""
+          @io.puts fail.message
+        end
         @io.puts "#{@responses.length} verifications: #{passes.length} passed, #{fails.length} failed, #{exceptions.length} exceptions, #{to_dos.length} to-dos"
       end
     end
