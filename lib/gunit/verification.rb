@@ -22,7 +22,7 @@ module GUnit
           ToDoResponse.new
         end
       rescue GUnit::AssertionFailure => e
-        FailResponse.new
+        FailResponse.new(e.message)
       rescue ::StandardError => e
         ExceptionResponse.new
       end

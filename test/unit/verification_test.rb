@@ -88,10 +88,13 @@ class GUnit::VerificationTest < Test::Unit::TestCase
   end
   
   def test_run_with_assertion_failure_exception
-    @verification1.task = lambda { raise GUnit::AssertionFailure }
+    message = "boooooooom"
+    assertion_failure = GUnit::AssertionFailure.new(message)
+    @verification1.task = lambda { raise assertion_failure }
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::FailResponse)
+    assert_equal message, response.message
   end
   
   def test_run_with_random_exception
