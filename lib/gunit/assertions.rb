@@ -16,7 +16,10 @@ module GUnit
         message = args[1]
       end
       
-      raise GUnit::AssertionFailure unless (actual.is_a?(Proc) && actual.call == expected) || actual == expected
+      unless ((actual.is_a?(Proc) && actual.call == expected) || actual == expected)
+        message ||= "#{(actual.is_a?(Proc) ? actual.call : actual).to_s} != #{expected.to_s}"
+        raise GUnit::AssertionFailure.new(message)
+      end
       
       true
     end
