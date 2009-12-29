@@ -11,6 +11,11 @@ class FooGUnitTest < GUnit::TestCase
   
   verify "variable from setup" do
     assert @foo == 'bar'
+    assert "foo is string" do
+      @foo.is_a?(String)
+    end
+    assert @foo.is_a?(String), "foo is string"
+    assert_equal 'bar', @foo, "foo is bar"
   end
   
   verify do
@@ -19,6 +24,22 @@ class FooGUnitTest < GUnit::TestCase
   
   verify "truth" do
     assert true
+    
+    assert "one is one" do
+      1 == 1
+    end
+    
+    assert_equal 1, 1
+    assert_equal 1, 1, "one is one"
+    assert_equal 1 do
+      0 + 1
+    end
+    assert_equal 2, "one and one make two" do
+      1 + 1
+    end
+    assert_equal 2 do
+      1 + 1
+    end
   end
   
   verify "failure here" do

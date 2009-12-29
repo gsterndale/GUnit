@@ -52,4 +52,50 @@ class FooTest < Test::Unit::TestCase
     end
   end
   
+  def test_assert_equal_two_args
+    expected = 1
+    actual   = 1
+    result   = @foo1.assert_equal expected, actual
+    assert result === true
+  end
+  
+  def test_assert_equal_one_arg_one_block
+    expected = 1
+    block    = Proc.new { 0 + 1 }
+    result   = @foo1.assert_equal expected, &block
+    assert result === true
+  end
+  
+  def test_assert_equal_two_args_one_block
+    expected = 1
+    block    = Proc.new { 0 + 1 }
+    message  = "my message here"
+    result   = @foo1.assert_equal expected, message, &block
+    assert result === true
+  end
+  
+  def test_assert_equal_fails
+    expected  = 2
+    message   = "my message here"
+    block     = Proc.new { 0 + 1 }
+    assert_raise GUnit::AssertionFailure do
+      @foo1.assert_equal expected, message, &block
+    end
+    begin
+      @foo1.assert_equal expected, message, &block
+    rescue GUnit::AssertionFailure => e
+      assert_equal message, e.message
+    end
+  end
+  
+  def test_assert_equal_fails_no_message
+    expected  = 2
+    block     = Proc.new { 0 + 1 }
+    begin
+      @foo1.assert_equal expected, &block
+    rescue GUnit::AssertionFailure => e
+      assert e.message =~ /1 != 2/
+    end
+  end
+  
 end
