@@ -51,7 +51,19 @@ class FooGUnitTest < GUnit::TestCase
   end
   
   verify "exceptional" do
-    raise "BOOM!"
+    assert_raises do
+      raise "BOOM!"
+    end
+  end
+  
+  verify "not exceptional" do
+    assert_raises do
+      true
+    end
+  end
+  
+  verify "unexpected" do
+    raise "BAM!!!"
   end
   
   verify "not dun yet"
@@ -161,8 +173,8 @@ class FooGUnitTestTest < Test::Unit::TestCase
   
   def test_run_test_runner
     @test_runner.run
-    assert_equal 5, @test_runner.passes.length
-    assert_equal 4, @test_runner.fails.length
+    assert_equal 6, @test_runner.passes.length
+    assert_equal 5, @test_runner.fails.length
     assert_equal 1, @test_runner.exceptions.length
     assert_equal 1, @test_runner.to_dos.length
   end

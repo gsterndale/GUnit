@@ -98,4 +98,93 @@ class FooTest < Test::Unit::TestCase
     end
   end
   
+  def test_assert_raises_two_args_one_block
+    block     = Proc.new { raise "boom" }
+    expected  = "boom"
+    message   = "my message here"
+    result    = @foo1.assert_raises expected, message, &block
+    assert result === true
+  end
+  
+  def test_assert_raises_two_args_with_class_one_block
+    block     = Proc.new { raise StandardError }
+    expected  = StandardError
+    message   = "my message here"
+    result    = @foo1.assert_raises expected, message, &block
+    assert result === true
+  end
+  
+  def test_assert_raises_one_arg_one_block
+    block     = Proc.new { raise "boom" }
+    expected  = "boom"
+    result    = @foo1.assert_raises expected, &block
+    assert result === true
+  end
+  
+  def test_assert_raises_one_block
+    block   = Proc.new { raise "boom" }
+    result  = @foo1.assert_raises &block
+    assert result === true
+  end
+  
+  def test_assert_raises_fails
+    block     = Proc.new { raise "POWWWW" }
+    expected  = "boom"
+    message   = "my message here"
+    assert_raise GUnit::AssertionFailure do
+      @foo1.assert_raises expected, message, &block
+    end
+    begin
+      @foo1.assert_raises expected, message, &block
+    rescue GUnit::AssertionFailure => e
+      assert_equal message, e.message
+    end
+  end
+  
+  def test_assert_raises_with_class_fails
+    block     = Proc.new { raise Exception }
+    expected  = StandardError
+    message   = "my message here"
+    assert_raise GUnit::AssertionFailure do
+      @foo1.assert_raises expected, message, &block
+    end
+    begin
+      @foo1.assert_raises expected, message, &block
+    rescue GUnit::AssertionFailure => e
+      assert_equal message, e.message
+    end
+  end
+  
+  def test_assert_raises_fails_no_message
+    block     = Proc.new { raise Exception }
+    expected  = StandardError
+    begin
+      @foo1.assert_raises expected, &block
+    rescue GUnit::AssertionFailure => e
+      assert e.message =~ /Expected StandardError to be raised, but got Exception/
+    end
+  end
+  
+  def test_assert_raises_fails_nothing_raised_no_message
+    block     = Proc.new { true }
+    expected  = StandardError
+    begin
+      @foo1.assert_raises expected, &block
+    rescue GUnit::AssertionFailure => e
+      assert e.message =~ /Expected StandardError to be raised, but nothing raised/
+    end
+  end
+  
+  def test_assert_raises_fails_no_expected_nothing_raised
+    block     = Proc.new { true }
+    assert_raise GUnit::AssertionFailure do
+      @foo1.assert_raises &block
+    end
+    begin
+      @foo1.assert_raises &block
+    rescue GUnit::AssertionFailure => e
+      assert e.message =~ /Nothing raised/
+    end
+  end
+  
 end
