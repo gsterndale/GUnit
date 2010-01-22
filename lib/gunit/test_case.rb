@@ -34,6 +34,7 @@ module GUnit
     
     def run
       self.run_setups
+      self.run_excercise
       response = self.send(self.method_name.to_sym)
       self.run_teardowns
       response
@@ -78,6 +79,15 @@ module GUnit
       current_context.setups << setup
     end
     
+    def self.exercise(*args, &blk)
+      exercise = if blk
+        GUnit::Exercise.new(args.first, &blk)
+      else
+        GUnit::Exercise.new(args.first)
+      end
+      current_context.exercise = exercise
+    end
+    
     def self.teardown(*args, &blk)
       teardown = if blk
         GUnit::Teardown.new(args.first, &blk)
@@ -115,7 +125,11 @@ module GUnit
     def run_setups
       self.context.all_setups.each {|s| s.run(self) }
     end
-  
+    
+    def run_excercise
+      self.context.exercise.run(self) if self.context && self.context.exercise
+    end
+    
     def run_teardowns
       self.context.all_teardowns.reverse.each {|t| t.run(self) } if self.context
     end

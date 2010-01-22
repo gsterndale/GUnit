@@ -31,6 +31,12 @@ class GUnit::ContextTest < Test::Unit::TestCase
     assert_equal message, @context1.message
   end
   
+  def test_exercise_setter
+    exercise = GUnit::Exercise.new
+    @context1.exercise = exercise
+    assert_equal exercise, @context1.exercise
+  end
+  
   def test_setups_setter
     setups = [GUnit::Setup.new, GUnit::Setup.new]
     @context1.setups = setups

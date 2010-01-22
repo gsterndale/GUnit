@@ -97,6 +97,15 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal "bar", @my_test_case1.instance_variable_get("@foo")
   end
   
+  def test_run_runs_exercise
+    MyClassTest.setup { @foo = "abc" }
+    MyClassTest.exercise { @foo.replace "bar" }
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.run
+    assert_equal "bar", @my_test_case1.instance_variable_get("@foo")
+  end
+  
   def test_run_runs_teardowns
     @my_test_case2 = MyClassTest.new
     MyClassTest.setup { @foo = "bar" }
@@ -166,16 +175,19 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
   def test_setup_and_teardown_inside_context_creates_context_with_setup_and_teardown
     context_msg   = "In some context"
     setup_msg     = "Given this"
+    exercise_msg  = "Doing this"
     teardown_msg  = "Housekeeping"
     verify_msg    = "This should be the case B"
     MyClassTest.context(context_msg) do
       setup(setup_msg) { @foo = "abc" }
+      exercise(exercise_msg) { @foo.replace "xyz" }
       teardown(teardown_msg) { @foo = "def" }
       verify(verify_msg) { true }
     end
     method_name = MyClassTest.message_to_test_method_name(verify_msg)
     context = MyClassTest.context_for_method(method_name)
     assert_equal setup_msg, context.setups.last.message
+    assert_equal exercise_msg, context.exercise.message
     assert_equal teardown_msg, context.teardowns.last.message
   end
   
@@ -213,6 +225,23 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     @my_test_case1.stubs(:context).returns(context1)
     @my_test_case1.run
     assert_equal 6, @my_test_case1.instance_variable_get("@foo")
+  end
+  
+  def test_run_runs_context_exercise_only
+    exercise = GUnit::Exercise.new { @foo = @foo.nil? ? 1 : @foo+1 }
+    pops = GUnit::Context.new
+    pops.exercise = exercise
+    parent = GUnit::Context.new
+    parent.exercise = exercise
+    parent.parent = pops
+    context1 = GUnit::Context.new
+    context1.exercise = exercise
+    context1.parent = parent
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.stubs(:context).returns(context1)
+    @my_test_case1.run
+    assert_equal 1, @my_test_case1.instance_variable_get("@foo")
   end
   
   def test_run_runs_contexts_teardowns

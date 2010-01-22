@@ -1,7 +1,7 @@
 module GUnit
   # Context instance has message, setups, exercises, teardowns, and parent (another Context)
   class Context
-    attr_accessor :task, :parent, :message, :setups, :teardowns
+    attr_accessor :task, :parent, :message, :setups, :exercise, :teardowns
     
     # Context.new("my message")
     # Context.new("my message") do

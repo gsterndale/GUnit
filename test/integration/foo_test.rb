@@ -71,13 +71,13 @@ class FooGUnitTest < GUnit::TestCase
   context "An instance of Foo" do
     # One setup per context
     setup do
-      @foo = 'abc'
+      @foo = ''
     end
     
-    # # One exercise per context
-    # exercise do
-    #   @foo.do_something
-    # end
+    # One exercise per context
+    exercise do
+      @foo.replace 'abc'
+    end
   
     # One teardown per context
     teardown do
@@ -87,6 +87,13 @@ class FooGUnitTest < GUnit::TestCase
     # Many verifies per context
     verify "abc's of foo" do
       assert @foo == 'abc'
+    end
+    
+    # Exercise outside of this context should not apply
+    context "doing something else" do
+      verify "emptiness of foo" do
+        assert @foo == '', "#{@foo.class} is not empty"
+      end
     end
     
     # many nested contexts per context
@@ -173,7 +180,7 @@ class FooGUnitTestTest < Test::Unit::TestCase
   
   def test_run_test_runner
     @test_runner.run
-    assert_equal 6, @test_runner.passes.length
+    assert_equal 7, @test_runner.passes.length
     assert_equal 5, @test_runner.fails.length
     assert_equal 1, @test_runner.exceptions.length
     assert_equal 1, @test_runner.to_dos.length
