@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{GUnit}
-  s.version = "0.1.2"
+  s.version = "0.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Greg Sterndale"]
@@ -44,6 +44,7 @@ Gem::Specification.new do |s|
      "test/test_helper.rb",
      "test/unit/assertions_test.rb",
      "test/unit/context_test.rb",
+     "test/unit/exercise_test.rb",
      "test/unit/fail_response_test.rb",
      "test/unit/proc_extensions_test.rb",
      "test/unit/setup_test.rb",
@@ -63,6 +64,7 @@ Gem::Specification.new do |s|
      "test/test_helper.rb",
      "test/unit/assertions_test.rb",
      "test/unit/context_test.rb",
+     "test/unit/exercise_test.rb",
      "test/unit/fail_response_test.rb",
      "test/unit/proc_extensions_test.rb",
      "test/unit/setup_test.rb",
