@@ -16,7 +16,7 @@ class GUnit::ContextTest < Test::Unit::TestCase
     @context1 = GUnit::Context.new
   end
   
-  def test_it_is_a_setup
+  def test_it_is_a_context
     assert @context1.is_a?(GUnit::Context)
   end
   
@@ -49,31 +49,40 @@ class GUnit::ContextTest < Test::Unit::TestCase
     assert_equal parent, @context1.parent
   end
   
-  def test_message_with_parent
+  def test_message_with_parents
+    nana = GUnit::Context.new
+    nana.message = "Nana"
     parent = GUnit::Context.new
     parent.message = "Mom"
+    parent.parent = nana
     message = "Kid"
     @context1.parent = parent
     @context1.message = message
-    assert_equal parent.message + ' ' + message, @context1.all_message
+    assert_equal nana.message + ' ' + parent.message + ' ' + message, @context1.all_message
   end
   
-  def test_setups_with_parent
+  def test_setups_with_parents
+    pops = GUnit::Context.new
+    pops.setups = [GUnit::Setup.new, GUnit::Setup.new]
     parent = GUnit::Context.new
     parent.setups = [GUnit::Setup.new, GUnit::Setup.new]
+    parent.parent = pops
     setups = [GUnit::Setup.new, GUnit::Setup.new]
     @context1.parent = parent
     @context1.setups = setups
-    assert_equal parent.setups  + setups, @context1.all_setups
+    assert_equal pops.setups + parent.setups + setups, @context1.all_setups
   end
   
-  def test_teardowns_with_parent
+  def test_teardowns_with_parents
+    pops = GUnit::Context.new
+    pops.teardowns = [GUnit::Teardown.new, GUnit::Teardown.new]
     parent = GUnit::Context.new
     parent.teardowns = [GUnit::Teardown.new, GUnit::Teardown.new]
+    parent.parent = pops
     teardowns = [GUnit::Teardown.new, GUnit::Teardown.new]
     @context1.parent = parent
     @context1.teardowns = teardowns
-    assert_equal parent.teardowns  + teardowns, @context1.all_teardowns
+    assert_equal pops.teardowns + parent.teardowns + teardowns, @context1.all_teardowns
   end
   
   # Context.new('my fixtures')

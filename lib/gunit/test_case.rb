@@ -17,7 +17,8 @@ module GUnit
     
     TEST_METHOD_PREFIX = 'test'
     
-    attr_accessor :method_name, :context
+    attr_accessor :method_name
+    attr_writer :context
     
     @@method_count          = 0
     @@context_stack         = [ GUnit::Context.new ]
@@ -112,11 +113,11 @@ module GUnit
   protected
     
     def run_setups
-      self.context.setups.each {|s| s.run(self) }
+      self.context.all_setups.each {|s| s.run(self) }
     end
   
     def run_teardowns
-      self.context.teardowns.reverse.each {|t| t.run(self) } if self.context
+      self.context.all_teardowns.reverse.each {|t| t.run(self) } if self.context
     end
     
     def self.current_context

@@ -28,17 +28,17 @@ module GUnit
     end
     
     def all_message
-      parent_message = self.parent.message if self.parent
+      parent_message = self.parent.all_message if self.parent
       parent_message = nil if parent_message == ''
       [parent_message, @message].compact.join(' ')
     end
     
     def all_setups
-      (self.parent ? self.parent.setups : []) + @setups
+      (self.parent ? self.parent.all_setups : []) + @setups
     end
     
     def all_teardowns
-      (self.parent ? self.parent.teardowns : []) + @teardowns
+      (self.parent ? self.parent.all_teardowns : []) + @teardowns
     end
     
   end

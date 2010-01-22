@@ -198,4 +198,55 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert context.is_a?(GUnit::Context)
   end
   
+  def test_run_runs_contexts_setups
+    setup = GUnit::Setup.new { @foo = @foo.nil? ? 1 : @foo+1 }
+    pops = GUnit::Context.new
+    pops.setups = [setup, setup]
+    parent = GUnit::Context.new
+    parent.setups = [setup, setup]
+    parent.parent = pops
+    context1 = GUnit::Context.new
+    context1.setups = [setup, setup]
+    context1.parent = parent
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.stubs(:context).returns(context1)
+    @my_test_case1.run
+    assert_equal 6, @my_test_case1.instance_variable_get("@foo")
+  end
+  
+  def test_run_runs_contexts_teardowns
+    teardown = GUnit::Teardown.new { @foo = @foo.nil? ? 1 : @foo+1 }
+    pops = GUnit::Context.new
+    pops.teardowns = [teardown, teardown]
+    parent = GUnit::Context.new
+    parent.teardowns = [teardown, teardown]
+    parent.parent = pops
+    context1 = GUnit::Context.new
+    context1.teardowns = [teardown, teardown]
+    context1.parent = parent
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.stubs(:context).returns(context1)
+    @my_test_case1.run
+    assert_equal 6, @my_test_case1.instance_variable_get("@foo")
+  end
+  
+  def test_run_runs_contexts_teardowns_in_reverse_order
+    teardown = GUnit::Teardown.new { @foo = @foo.nil? ? 1 : @foo+1 }
+    last_teardown = GUnit::Teardown.new { @foo = -1 }
+    pops = GUnit::Context.new
+    pops.teardowns = [last_teardown, teardown]
+    parent = GUnit::Context.new
+    parent.teardowns = [teardown, teardown]
+    parent.parent = pops
+    context1 = GUnit::Context.new
+    context1.teardowns = [teardown, teardown]
+    context1.parent = parent
+    method_name = "test_one"
+    @my_test_case1 = MyClassTest.new(method_name)
+    @my_test_case1.stubs(:context).returns(context1)
+    @my_test_case1.run
+    assert_equal -1, @my_test_case1.instance_variable_get("@foo")
+  end
 end
