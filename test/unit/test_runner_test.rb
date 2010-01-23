@@ -66,9 +66,11 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   
   def test_run_not_silent
     fail_response_message = "Whoops. Failed."
-    
+    line_number = 63
+    file_name = 'my_test.rb'
+    backtrace = ["samples/#{file_name}:#{line_number}:in `my_method'"]
     test_response1 = GUnit::PassResponse.new
-    test_response2 = GUnit::FailResponse.new(fail_response_message)
+    test_response2 = GUnit::FailResponse.new(fail_response_message, backtrace)
     test_response3 = GUnit::ExceptionResponse.new
     test_response4 = GUnit::ToDoResponse.new
     
@@ -79,7 +81,7 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     io.expects(:print).with(GUnit::TestRunner::EXCEPTION_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::TODO_CHAR).at_least(1)
     io.stubs(:puts)
-    io.expects(:puts).with(fail_response_message).at_least(1)
+    io.expects(:puts).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{file_name}/ && value =~ /#{line_number}/ }.at_least(1)
     @test_runner.io = io
     
     test_suite = GUnit::TestSuite.new

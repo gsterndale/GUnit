@@ -25,7 +25,7 @@ module GUnit
 # require 'rubygems'
 # require 'ruby-debug'
 # debugger
-        FailResponse.new(e.message)
+        FailResponse.new(e.message, e.backtrace)
       rescue ::StandardError => e
         ExceptionResponse.new
       end

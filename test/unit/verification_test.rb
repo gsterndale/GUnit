@@ -89,12 +89,15 @@ class GUnit::VerificationTest < Test::Unit::TestCase
   
   def test_run_with_assertion_failure_exception
     message = "boooooooom"
+    backtrace = ['ohnoes']
     assertion_failure = GUnit::AssertionFailure.new(message)
+    assertion_failure.expects(:backtrace).at_least_once.returns(backtrace)
     @verification1.task = lambda { raise assertion_failure }
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::FailResponse)
     assert_equal message, response.message
+    assert_equal backtrace, response.backtrace
   end
   
   def test_run_with_random_exception
