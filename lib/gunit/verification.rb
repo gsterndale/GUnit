@@ -22,6 +22,9 @@ module GUnit
           ToDoResponse.new
         end
       rescue GUnit::AssertionFailure => e
+# require 'rubygems'
+# require 'ruby-debug'
+# debugger
         FailResponse.new(e.message)
       rescue ::StandardError => e
         ExceptionResponse.new
