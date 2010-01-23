@@ -19,15 +19,12 @@ module GUnit
           bound_task.call
           PassResponse.new
         else
-          ToDoResponse.new
+          ToDoResponse.new(self.message, Kernel.caller)
         end
       rescue GUnit::AssertionFailure => e
-# require 'rubygems'
-# require 'ruby-debug'
-# debugger
         FailResponse.new(e.message, e.backtrace)
-      rescue ::StandardError => e
-        ExceptionResponse.new
+      rescue ::Exception => e
+        ExceptionResponse.new(e.message, e.backtrace)
       end
     end
     

@@ -54,8 +54,8 @@ module GUnit
       
       unless self.silent
         @io.puts ""
-        fails.each do |fail|
-          @io.puts "#{fail.message} (#{fail.file_name}:#{fail.line_number})"
+        @responses.each do |response|
+          @io.puts "#{response.message} (#{response.file_name}:#{response.line_number})" unless response.is_a?(GUnit::PassResponse)
         end
         @io.puts "#{@responses.length} verifications: #{passes.length} passed, #{fails.length} failed, #{exceptions.length} exceptions, #{to_dos.length} to-dos"
       end

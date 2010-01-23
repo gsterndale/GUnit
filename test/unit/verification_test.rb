@@ -71,10 +71,27 @@ class GUnit::VerificationTest < Test::Unit::TestCase
   end
   
   def test_run_with_task_is_nil
+    message = 'Not dun yet'
+    stack = ["./samples/../lib/gunit/verification.rb:25:in `test_not_dun_yet'",
+             "./samples/../lib/gunit/verification.rb:25:in `test_not_dun_yet'",
+             "./samples/../lib/gunit/test_case.rb:38:in `send'",
+             "./samples/../lib/gunit/test_case.rb:38:in `run'",
+             "./samples/../lib/gunit/test_suite.rb:21:in `run'",
+             "./samples/../lib/gunit/test_suite.rb:16:in `each'",
+             "./samples/../lib/gunit/test_suite.rb:16:in `run'",
+             "./samples/../lib/gunit/test_runner.rb:44:in `run'",
+             "./samples/../lib/gunit/test_runner.rb:41:in `each'",
+             "./samples/../lib/gunit/test_runner.rb:41:in `run'",
+             "samples/foo_sample.rb:177"]
+    to_do_response = GUnit::ToDoResponse.new(message, stack)
+    @verification1.message = message
     @verification1.task = nil
+    GUnit::ToDoResponse.expects(:new).with{|m,b| m == message && b.is_a?(Array) }.once.returns(to_do_response)
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::ToDoResponse)
+    assert_equal message, response.message
+    assert_equal stack, response.backtrace
   end
   
   def test_run_with_binding
@@ -101,10 +118,16 @@ class GUnit::VerificationTest < Test::Unit::TestCase
   end
   
   def test_run_with_random_exception
-    @verification1.task = lambda { raise 'Boom' }
+    message = "boooooooom"
+    backtrace = ['ohnoes']
+    exception = Exception.new(message)
+    exception.set_backtrace(backtrace)
+    @verification1.task = lambda { raise exception }
     response = @verification1.run
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::ExceptionResponse)
+    assert_equal message, response.message
+    assert_equal backtrace, response.backtrace
   end
     
 end

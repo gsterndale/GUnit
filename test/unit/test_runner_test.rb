@@ -65,15 +65,17 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   end
   
   def test_run_not_silent
-    fail_response_message = "Whoops. Failed."
-    line_number = 63
-    file_name = 'my_test.rb'
-    backtrace = ["samples/#{file_name}:#{line_number}:in `my_method'"]
     test_response1 = GUnit::PassResponse.new
-    test_response2 = GUnit::FailResponse.new(fail_response_message, backtrace)
-    test_response3 = GUnit::ExceptionResponse.new
+    fail_response_message = "Whoops. Failed."
+    fail_line_number = 63
+    fail_file_name = 'my_test.rb'
+    backtrace = 
+    test_response2 = GUnit::FailResponse.new(fail_response_message, ["samples/#{fail_file_name}:#{fail_line_number}:in `my_method'"])
+    exception_response_message = "Exceptional"
+    exception_line_number = 72
+    exception_file_name = 'my_other_test.rb'
+    test_response3 = GUnit::ExceptionResponse.new(exception_response_message, ["samples/#{exception_file_name}:#{exception_line_number}:in `my_method'"])
     test_response4 = GUnit::ToDoResponse.new
-    
     @test_runner.silent = false
     io = mock
     io.expects(:print).with(GUnit::TestRunner::PASS_CHAR).at_least(1)
@@ -81,7 +83,8 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     io.expects(:print).with(GUnit::TestRunner::EXCEPTION_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::TODO_CHAR).at_least(1)
     io.stubs(:puts)
-    io.expects(:puts).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{file_name}/ && value =~ /#{line_number}/ }.at_least(1)
+    io.expects(:puts).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{fail_file_name}/ && value =~ /#{fail_line_number}/ }.at_least(1)
+    io.expects(:puts).with() { |value| value =~ /#{exception_response_message}/ && value =~ /#{exception_file_name}/ && value =~ /#{exception_line_number}/ }.at_least(1)
     @test_runner.io = io
     
     test_suite = GUnit::TestSuite.new
