@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{GUnit}
-  s.version = "0.2.1"
+  s.version = "0.2.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Greg Sterndale"]
@@ -44,14 +44,18 @@ Gem::Specification.new do |s|
      "test/test_helper.rb",
      "test/unit/assertions_test.rb",
      "test/unit/context_test.rb",
+     "test/unit/exception_response_test.rb",
      "test/unit/exercise_test.rb",
      "test/unit/fail_response_test.rb",
+     "test/unit/pass_response_test.rb",
      "test/unit/proc_extensions_test.rb",
      "test/unit/setup_test.rb",
      "test/unit/teardown_test.rb",
      "test/unit/test_case_test.rb",
+     "test/unit/test_response_test.rb",
      "test/unit/test_runner_test.rb",
      "test/unit/test_suite_test.rb",
+     "test/unit/to_do_response_test.rb",
      "test/unit/verification_test.rb"
   ]
   s.homepage = %q{http://github.com/gsterndale/gunit}
@@ -64,14 +68,18 @@ Gem::Specification.new do |s|
      "test/test_helper.rb",
      "test/unit/assertions_test.rb",
      "test/unit/context_test.rb",
+     "test/unit/exception_response_test.rb",
      "test/unit/exercise_test.rb",
      "test/unit/fail_response_test.rb",
+     "test/unit/pass_response_test.rb",
      "test/unit/proc_extensions_test.rb",
      "test/unit/setup_test.rb",
      "test/unit/teardown_test.rb",
      "test/unit/test_case_test.rb",
+     "test/unit/test_response_test.rb",
      "test/unit/test_runner_test.rb",
      "test/unit/test_suite_test.rb",
+     "test/unit/to_do_response_test.rb",
      "test/unit/verification_test.rb"
   ]
 
