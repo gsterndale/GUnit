@@ -9,7 +9,7 @@ Just playin'. TestUnit is our boy.
 == Rolling with the following features:
 * Nested contexts
 * Custom macros *soon*
-* Setup, teardown and *soon* exercise
+* Setup, teardown and exercise
 * Todos
 
 == Copyright
