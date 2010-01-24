@@ -56,6 +56,6 @@ class MartiniTest < GUnit::TestCase
 
 end
 
-@test_runner = GUnit::TestRunner.new
+@test_runner = GUnit::TestRunner.instance
 @test_runner.tests << MartiniTest.suite
 @test_runner.run

@@ -3,13 +3,14 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 class GUnit::TestRunnerTest < Test::Unit::TestCase
   
   def setup
-    @test_runner = GUnit::TestRunner.new
+    @test_runner = GUnit::TestRunner.instance
+    @test_runner.reset
     io = Object.new
     @test_runner.io = io
     @test_runner.io.stubs(:print)
     @test_runner.io.stubs(:puts)
   end
-  
+
   def test_it_is_a_test_runner
     assert @test_runner.is_a?(GUnit::TestRunner)
   end
@@ -20,7 +21,21 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     @test_runner.tests = tests
     assert @test_runner.tests == tests
   end
-  
+
+  def test_reset_clears_tests_responses
+    test_response1 = GUnit::PassResponse.new
+    test_suite = GUnit::TestSuite.new
+    test_suite.expects(:run).multiple_yields(test_response1)
+    @test_runner.tests = [test_suite]
+    @test_runner.run
+    assert @test_runner.responses.include?(test_response1)
+    assert ! @test_runner.tests.empty?
+    assert ! @test_runner.responses.empty?
+    @test_runner.reset
+    assert @test_runner.tests.empty?
+    assert @test_runner.responses.empty?
+  end
+
   def test_tests_set_nil_has_empty_tests
     @test_runner.tests = nil
     assert @test_runner.tests.empty?
@@ -44,7 +59,8 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   end
   
   def test_io_default
-    assert GUnit::TestRunner.new.io == STDOUT
+    @test_runner.reset
+    assert @test_runner.io == STDOUT
   end
   
   def test_silent_getter_setter

@@ -1,3 +1,5 @@
+require 'singleton'
+
 module GUnit
   
   # How many tests have run
@@ -15,7 +17,9 @@ module GUnit
   # After all tests have run, the TestRunner displays a summery of results
   
   class TestRunner
-    
+
+    include Singleton
+
     PASS_CHAR      = '.'
     FAIL_CHAR      = 'F'
     TODO_CHAR      = '*'
@@ -32,7 +36,14 @@ module GUnit
       STDOUT.sync = true
       @silent = false
     end
-    
+
+    def reset
+      @io = STDOUT
+      @silent = false
+      @responses = []
+      @tests = []
+    end
+
     def tests
       @tests ||= []
     end
