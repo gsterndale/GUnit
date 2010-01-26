@@ -14,7 +14,17 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   def test_it_is_a_test_runner
     assert @test_runner.is_a?(GUnit::TestRunner)
   end
-  
+
+  def test_singleton
+    assert_raise NoMethodError do; @test_runner.new; end
+    tests = [GUnit::TestSuite.new, GUnit::TestCase.new]
+    assert @test_runner.tests != tests
+    @test_runner.tests = tests
+    assert @test_runner.tests == tests
+    @test_runner = GUnit::TestRunner.instance
+    assert @test_runner.tests == tests
+  end
+
   def test_tests_getter_setter
     tests = [GUnit::TestSuite.new, GUnit::TestCase.new]
     assert @test_runner.tests != tests
@@ -22,18 +32,42 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     assert @test_runner.tests == tests
   end
 
-  def test_reset_clears_tests_responses
+  def test_patterns_getter_setter
+    patterns = ['test/**/*_MY_test.rb', 'test/**/MY_test_*.rb']
+    assert @test_runner.patterns != patterns
+    @test_runner.patterns = patterns
+    assert @test_runner.patterns == patterns
+  end
+
+  def test_autorun_getter_setter
+    assert @test_runner.autorun?
+    @test_runner.autorun = false
+    assert ! @test_runner.autorun?
+  end
+
+  def test_default_patterns
+    assert ! @test_runner.patterns.empty?
+    assert_equal GUnit::TestRunner::DEFAULT_PATTERNS, @test_runner.patterns
+  end
+
+  def test_reset_clears_tests_responses_patterns_autorun
+    patterns = [ 'test/**/*_MY_test.rb', 'test/**/MY_test_*.rb' ]
+    @test_runner.patterns = patterns
     test_response1 = GUnit::PassResponse.new
     test_suite = GUnit::TestSuite.new
     test_suite.expects(:run).multiple_yields(test_response1)
     @test_runner.tests = [test_suite]
+    @test_runner.autorun = false
     @test_runner.run
     assert @test_runner.responses.include?(test_response1)
     assert ! @test_runner.tests.empty?
     assert ! @test_runner.responses.empty?
+    assert_not_equal GUnit::TestRunner::DEFAULT_PATTERNS, @test_runner.patterns
     @test_runner.reset
+    assert @test_runner.autorun?
     assert @test_runner.tests.empty?
     assert @test_runner.responses.empty?
+    assert_equal GUnit::TestRunner::DEFAULT_PATTERNS, @test_runner.patterns
   end
 
   def test_tests_set_nil_has_empty_tests
@@ -80,6 +114,22 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     @test_runner.run
   end
   
+  def test_run_bang
+    @test_runner.io = mock() # fails if any methods on io are called
+    @test_runner.silent = true
+    test_response1 = GUnit::PassResponse.new
+    test_suite = GUnit::TestSuite.new
+    @test_runner.tests = [test_suite]
+
+    test_suite.expects(:run).times(0)
+    @test_runner.autorun = false
+    @test_runner.run!
+
+    test_suite.expects(:run).times(1).yields(test_response1)
+    @test_runner.autorun = true
+    @test_runner.run!
+  end
+
   def test_run_not_silent
     test_response1 = GUnit::PassResponse.new
     fail_response_message = "Whoops. Failed."

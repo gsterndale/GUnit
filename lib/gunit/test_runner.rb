@@ -25,29 +25,39 @@ module GUnit
     TODO_CHAR      = '*'
     EXCEPTION_CHAR = 'E'
     
+    DEFAULT_PATTERNS = ['test/**/*_test.rb', 'test/**/test_*.rb']
+
     # TestSuites and/or TestCases
-    attr_accessor :io, :silent
-    attr_writer :tests
+    attr_accessor :io, :silent, :patterns
+    attr_writer :tests, :autorun
     attr_reader :responses
     
     def initialize(*args)
-      @responses = []
-      @io = STDOUT
       STDOUT.sync = true
-      @silent = false
+      reset
     end
 
     def reset
-      @io = STDOUT
-      @silent = false
-      @responses = []
-      @tests = []
+      @io         = STDOUT
+      @silent     = false
+      @responses  = []
+      @tests      = []
+      @patterns   = DEFAULT_PATTERNS
+      @autorun    = true
     end
 
     def tests
       @tests ||= []
     end
-    
+
+    def autorun?
+      ! @autorun.nil? && @autorun
+    end
+
+    def run!
+      self.run if self.autorun?
+    end
+
     def run
       self.tests.each do |test|
         case

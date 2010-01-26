@@ -17,9 +17,9 @@ require 'gunit/fail_response'
 require 'gunit/pass_response'
 require 'gunit/to_do_response'
 
-require 'gunit/test_case'
-require 'gunit/test_suite'
 require 'gunit/test_runner'
+require 'gunit/test_suite'
+require 'gunit/test_case'
 
 
 
