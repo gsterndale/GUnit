@@ -21,7 +21,18 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
   def test_it_is_a_test_case
     assert @my_test_case.is_a?(GUnit::TestCase)
   end
-  
+
+  def test_autorun_class_attr
+    assert GUnit::TestCase.autorun? === false # set to false in test_helper.rb
+    GUnit::TestCase.autorun = true
+    assert GUnit::TestCase.autorun?
+    GUnit::TestRunner.expects(:instance).times(1).returns(mock(:tests => [], :run! => true))
+    MyClassTest.autorun
+    GUnit::TestCase.autorun = false
+    GUnit::TestRunner.expects(:instance).times(0)
+    MyClassTest.autorun
+  end
+
   def test_method_name_setter_getter
     method_name = "my_method"
     assert_not_equal method_name, @my_test_case.method_name

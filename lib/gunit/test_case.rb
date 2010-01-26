@@ -1,5 +1,4 @@
 module GUnit
-  
   # Acts as a TestSuite Factory
   # Creates a TestCase Object for each Test Method
   # Adds all TestCase Objects onto a TestSuite Object
@@ -12,9 +11,8 @@ module GUnit
   
   # count, run, display
   class TestCase
-    
     include Assertions
-    
+
     TEST_METHOD_PREFIX = 'test'
     
     attr_accessor :method_name
@@ -23,23 +21,33 @@ module GUnit
     @@method_count          = 0
     @@context_stack         = [ GUnit::Context.new ]
     @@test_method_contexts  = {}
-    
+    @@autorun               = true
+
     def initialize(method=nil)
       self.method_name = method
     end
-    
-    def context
-      self.class.context_for_method(self.method_name)
+
+    def self.inherited(subclass)
+      # autorun must happen at exit, otherwise the subclass won't be loaded
+      at_exit { subclass.autorun }
     end
-    
-    def run
-      self.run_setups
-      self.run_excercise
-      response = self.send(self.method_name.to_sym)
-      self.run_teardowns
-      response
+
+    def self.autorun=(a)
+      @@autorun = !a.nil? && a
     end
-    
+
+    def self.autorun?
+      @@autorun
+    end
+
+    def self.autorun
+      if GUnit::TestCase.autorun?
+        test_runner = GUnit::TestRunner.instance
+        test_runner.tests << suite
+        test_runner.run!
+      end
+    end
+
     def self.suite
       # Create an new instance of self.class for each test method and add them to a TestSuite Object
       test_suite = TestSuite.new
@@ -119,9 +127,21 @@ module GUnit
         TEST_METHOD_PREFIX.to_sym
       end
     end
-    
+
+    def context
+      self.class.context_for_method(self.method_name)
+    end
+
+    def run
+      self.run_setups
+      self.run_excercise
+      response = self.send(self.method_name.to_sym)
+      self.run_teardowns
+      response
+    end
+
   protected
-    
+  	
     def run_setups
       self.context.all_setups.each {|s| s.run(self) }
     end
@@ -145,7 +165,7 @@ module GUnit
       end
       name
     end
-    
+
   end
-  
+
 end
