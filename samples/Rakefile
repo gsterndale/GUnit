@@ -1,0 +1,21 @@
+require 'rubygems'
+require 'rake'
+# require 'GUnit'
+require File.join(File.dirname(__FILE__), '..', 'lib', 'gunit')
+
+task :default => "gunit:test"
+
+namespace :gunit do
+  
+  desc "Run GUnit tests"
+  task :test do
+    test_runner = GUnit::TestRunner.instance
+    test_runner.autorun = false
+  	test_runner.patterns = ['test/**/*_test.rb']
+  	test_runner.discover
+    test_runner.run
+  end
+
+end
+
+
