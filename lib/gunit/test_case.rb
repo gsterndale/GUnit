@@ -22,12 +22,18 @@ module GUnit
     @@context_stack         = [ GUnit::Context.new ]
     @@test_method_contexts  = {}
     @@autorun               = true
+    @@subclasses            = []
 
     def initialize(method=nil)
       self.method_name = method
     end
 
+    def self.subclasses
+      @@subclasses
+    end
+
     def self.inherited(subclass)
+      subclasses << subclass
       # autorun must happen at exit, otherwise the subclass won't be loaded
       at_exit { subclass.autorun }
     end

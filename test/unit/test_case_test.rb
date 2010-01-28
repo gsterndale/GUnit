@@ -22,6 +22,11 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert @my_test_case.is_a?(GUnit::TestCase)
   end
 
+  def test_subclasses_class_attr
+    assert ! GUnit::TestCase.subclasses.empty?
+    assert GUnit::TestCase.subclasses.include?(MyClassTest)
+  end
+
   def test_autorun_class_attr
     assert GUnit::TestCase.autorun? === false # set to false in test_helper.rb
     GUnit::TestCase.autorun = true
