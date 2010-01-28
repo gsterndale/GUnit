@@ -50,6 +50,29 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     assert_equal GUnit::TestRunner::DEFAULT_PATTERNS, @test_runner.patterns
   end
 
+  def test_discover_tests
+    pattern1 = 'foo'
+    pattern2 = 'bar'
+    file1 = 'foo.rb'
+    file2 = 'bar.rb'
+    file3 = 'baz.rb'
+    @test_runner.patterns = [ pattern1, pattern2 ]
+    Dir.expects(:glob).with(pattern1).returns( [ file1, file2 ] ).once
+    Dir.expects(:glob).with(pattern2).returns( [ file3 ] ).once
+    Kernel.expects(:require).with(file1).returns(true).once
+    Kernel.expects(:require).with(file2).returns(true).once
+    Kernel.expects(:require).with(file3).returns(true).once
+    suite1 = mock
+    suite2 = mock
+    test_case_subclass1 = mock(:suite => suite1)
+    test_case_subclass2 = mock(:suite => suite2)
+    GUnit::TestCase.expects(:subclasses).returns([test_case_subclass1, test_case_subclass2])
+    @test_runner.discover
+    assert @test_runner.tests.include?(suite1)
+    assert @test_runner.tests.include?(suite2)
+  end
+  
+
   def test_reset_clears_tests_responses_patterns_autorun
     patterns = [ 'test/**/*_MY_test.rb', 'test/**/MY_test_*.rb' ]
     @test_runner.patterns = patterns

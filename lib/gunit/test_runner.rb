@@ -46,6 +46,12 @@ module GUnit
       @autorun    = true
     end
 
+    def discover
+      files = self.patterns.inject([]){|memo, pattern| memo + Dir.glob(pattern) }.compact
+      files.each {|file| Kernel.require file }
+      self.tests = TestCase.subclasses.inject([]){|memo, test_case| memo << test_case.suite }.compact
+    end
+
     def tests
       @tests ||= []
     end
