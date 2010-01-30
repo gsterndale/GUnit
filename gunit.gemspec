@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{GUnit}
-  s.version = "0.3.1"
+  s.version = "0.3.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Greg Sterndale"]
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
      "lib/gunit/exception_response.rb",
      "lib/gunit/exercise.rb",
      "lib/gunit/fail_response.rb",
+     "lib/gunit/groundwork.rb",
      "lib/gunit/pass_response.rb",
      "lib/gunit/proc_extensions.rb",
      "lib/gunit/setup.rb",
@@ -51,6 +52,7 @@ Gem::Specification.new do |s|
      "test/unit/exception_response_test.rb",
      "test/unit/exercise_test.rb",
      "test/unit/fail_response_test.rb",
+     "test/unit/groundwork_test.rb",
      "test/unit/pass_response_test.rb",
      "test/unit/proc_extensions_test.rb",
      "test/unit/setup_test.rb",
@@ -75,6 +77,7 @@ Gem::Specification.new do |s|
      "test/unit/exception_response_test.rb",
      "test/unit/exercise_test.rb",
      "test/unit/fail_response_test.rb",
+     "test/unit/groundwork_test.rb",
      "test/unit/pass_response_test.rb",
      "test/unit/proc_extensions_test.rb",
      "test/unit/setup_test.rb",
