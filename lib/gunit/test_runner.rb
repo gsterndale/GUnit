@@ -70,28 +70,13 @@ module GUnit
     end
 
     def run
-      @io.puts test_case_classes.map{|klass| klass.to_s }.join(', ') unless self.silent
+      self.print_test_cases_summary unless self.silent
       self.test_cases.each do |test_case|
         response = test_case.run
         @responses << response
-        unless self.silent
-          @io.print self.class.response_color(response)
-          @io.print self.class.response_character(response)
-          @io.print DEFAULT_COLOR
-        end
+        self.print_response_char(response) unless self.silent
       end
-      
-      unless self.silent
-        @io.puts ""
-        @responses.each do |response|
-          unless response.is_a?(GUnit::PassResponse)
-            @io.print self.class.response_color(response)
-            @io.print "#{response.message} (#{response.file_name}:#{response.line_number})\n"
-            @io.print DEFAULT_COLOR
-          end
-        end
-        @io.puts "#{@responses.length} verifications: #{passes.length} passed, #{fails.length} failed, #{exceptions.length} exceptions, #{to_dos.length} to-dos"
-      end
+      self.print_responses_summary unless self.silent
     end
     
     def passes
@@ -111,6 +96,26 @@ module GUnit
     end
     
   protected
+
+    def print_test_cases_summary
+      @io.puts test_case_classes.map{|klass| klass.to_s }.join(', ')
+    end
+
+    def print_response_char(response)
+      @io.print self.class.response_color(response)
+      @io.print self.class.response_character(response)
+      @io.print DEFAULT_COLOR
+    end
+
+    def print_responses_summary
+      @io.puts ""
+      @responses.select{|r| !r.is_a?(GUnit::PassResponse) }.each do |response|
+        @io.print self.class.response_color(response)
+        @io.print "#{response.message} (#{response.file_name}:#{response.line_number})\n"
+        @io.print DEFAULT_COLOR
+      end
+      @io.puts "#{@responses.length} verifications: #{passes.length} passed, #{fails.length} failed, #{exceptions.length} exceptions, #{to_dos.length} to-dos"
+    end
 
     # Flatten array of TestSuites and TestCases into a single dimensional array of TestCases
     def test_cases(a=self.tests)
