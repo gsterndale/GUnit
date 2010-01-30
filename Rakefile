@@ -6,7 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "GUnit"
     gem.summary = %Q{XUnit Test. Gangsta style.}
-    gem.description = %Q{GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. Just playin'. TestUnit is our boy.}
+    gem.description = %Q{GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. Just playin'. TestUnit is the shizzle.}
     gem.email = "gsterndale@gmail.com"
     gem.homepage = "http://github.com/gsterndale/gunit"
     gem.authors = ["Greg Sterndale"]

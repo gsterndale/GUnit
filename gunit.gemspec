@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Greg Sterndale"]
   s.date = %q{2010-01-30}
-  s.description = %q{GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. Just playin'. TestUnit is our boy.}
+  s.description = %q{GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. Just playin'. TestUnit is the shizzle.}
   s.email = %q{gsterndale@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
