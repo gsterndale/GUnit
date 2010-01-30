@@ -4,7 +4,7 @@ Unit Test. Gangsta style.
 
 GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. 
 
-Just playin'. TestUnit is our boy.
+Just playin'. TestUnit is the shizzle.
 
 == Rolling with the following features:
 * Nested contexts
