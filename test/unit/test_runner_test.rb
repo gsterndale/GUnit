@@ -168,16 +168,28 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     exception_line_number = 72
     exception_file_name = 'my_other_test.rb'
     test_response3 = GUnit::ExceptionResponse.new(exception_response_message, ["samples/#{exception_file_name}:#{exception_line_number}:in `my_method'"])
-    test_response4 = GUnit::ToDoResponse.new
+    to_do_response_message = "Not dun yet"
+    test_response4 = GUnit::ToDoResponse.new(to_do_response_message)
     @test_runner.silent = false
     io = mock
     io.expects(:print).with(GUnit::TestRunner::PASS_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::FAIL_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::EXCEPTION_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::TODO_CHAR).at_least(1)
+
+    io.expects(:print).with(GUnit::TestRunner::PASS_COLOR).at_least(1)
+    # One call to print with each color for every response char and every failing message
+    io.expects(:print).with(GUnit::TestRunner::FAIL_COLOR).at_least(4)
+    # FAIL_COLOR and EXCEPTION_COLOR are the same. Setting two identical expectations causes a failure
+    # io.expects(:print).with(GUnit::TestRunner::EXCEPTION_COLOR).at_least(2)
+    io.expects(:print).with(GUnit::TestRunner::TODO_COLOR).at_least(2)
+
+    io.expects(:print).with(GUnit::TestRunner::DEFAULT_COLOR).at_least(7)
+
     io.stubs(:puts)
-    io.expects(:puts).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{fail_file_name}/ && value =~ /#{fail_line_number}/ }.at_least(1)
-    io.expects(:puts).with() { |value| value =~ /#{exception_response_message}/ && value =~ /#{exception_file_name}/ && value =~ /#{exception_line_number}/ }.at_least(1)
+    io.expects(:print).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{fail_file_name}/ && value =~ /#{fail_line_number}/ }.at_least(1)
+    io.expects(:print).with() { |value| value =~ /#{exception_response_message}/ && value =~ /#{exception_file_name}/ && value =~ /#{exception_line_number}/ }.at_least(1)
+    io.expects(:print).with() { |value| value =~ /#{to_do_response_message}/ }.at_least(1)
     @test_runner.io = io
 
     test_case1 = GUnit::TestCase.new
@@ -188,7 +200,7 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     test_case3.expects(:run).returns(test_response3)
     test_case4 = GUnit::TestCase.new
     test_case4.expects(:run).returns(test_response4)
-    
+
     test_suite = GUnit::TestSuite.new
     test_suite.tests = [test_case1, test_case2, test_case4]
     @test_runner.tests = [test_suite, test_case3]

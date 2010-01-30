@@ -20,11 +20,16 @@ module GUnit
 
     include Singleton
 
-    PASS_CHAR      = '.'
-    FAIL_CHAR      = 'F'
-    TODO_CHAR      = '*'
-    EXCEPTION_CHAR = 'E'
-    
+    PASS_CHAR       = '.'
+    FAIL_CHAR       = 'F'
+    TODO_CHAR       = '*'
+    EXCEPTION_CHAR  = 'E'
+    PASS_COLOR      = "\e[0;32m"
+    FAIL_COLOR      = "\e[0;31m"
+    EXCEPTION_COLOR = "\e[0;31m"
+    TODO_COLOR      = "\e[0;33m"
+    DEFAULT_COLOR   = "\e[0m"
+
     DEFAULT_PATTERNS = ['test/**/*_test.rb', 'test/**/test_*.rb']
 
     # TestSuites and/or TestCases
@@ -69,13 +74,21 @@ module GUnit
       self.test_cases.each do |test_case|
         response = test_case.run
         @responses << response
-        @io.print self.class.response_character(response) unless self.silent
+        unless self.silent
+          @io.print self.class.response_color(response)
+          @io.print self.class.response_character(response)
+          @io.print DEFAULT_COLOR
+        end
       end
       
       unless self.silent
         @io.puts ""
         @responses.each do |response|
-          @io.puts "#{response.message} (#{response.file_name}:#{response.line_number})" unless response.is_a?(GUnit::PassResponse)
+          unless response.is_a?(GUnit::PassResponse)
+            @io.print self.class.response_color(response)
+            @io.print "#{response.message} (#{response.file_name}:#{response.line_number})\n"
+            @io.print DEFAULT_COLOR
+          end
         end
         @io.puts "#{@responses.length} verifications: #{passes.length} passed, #{fails.length} failed, #{exceptions.length} exceptions, #{to_dos.length} to-dos"
       end
@@ -117,18 +130,22 @@ module GUnit
     end
 
     def self.response_character(response)
-      case
-      when response.is_a?(PassResponse)
-        PASS_CHAR
-      when response.is_a?(FailResponse)
-        FAIL_CHAR
-      when response.is_a?(ExceptionResponse)
-        EXCEPTION_CHAR
-      when response.is_a?(ToDoResponse)
-        TODO_CHAR
+      case response
+      when PassResponse       then PASS_CHAR
+      when FailResponse       then FAIL_CHAR
+      when ExceptionResponse  then EXCEPTION_CHAR
+      when ToDoResponse       then TODO_CHAR
       end
     end
-    
+
+    def self.response_color(response)
+      case response
+      when PassResponse       then PASS_COLOR
+      when FailResponse       then FAIL_COLOR
+      when ExceptionResponse  then EXCEPTION_COLOR
+      when ToDoResponse       then TODO_COLOR
+      end
+    end
   end
   
 end
