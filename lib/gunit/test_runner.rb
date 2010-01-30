@@ -65,18 +65,11 @@ module GUnit
     end
 
     def run
-      self.tests.each do |test|
-        case
-        when test.is_a?(TestSuite)
-          test.run do |response|
-            @responses << response
-            @io.print self.class.response_character(response) unless self.silent
-          end
-        when test.is_a?(TestCase)
-          response = test.run
-          @responses << response
-          @io.print self.class.response_character(response) unless self.silent
-        end
+      @io.puts test_case_classes.map{|klass| klass.to_s }.join(', ') unless self.silent
+      self.test_cases.each do |test_case|
+        response = test_case.run
+        @responses << response
+        @io.print self.class.response_character(response) unless self.silent
       end
       
       unless self.silent
@@ -105,7 +98,24 @@ module GUnit
     end
     
   protected
-    
+
+    # Flatten array of TestSuites and TestCases into a single dimensional array of TestCases
+    def test_cases(a=self.tests)
+      a.map do |test|
+        case test
+        when GUnit::TestSuite
+          test_cases(test.tests)
+        when GUnit::TestCase
+          test
+        end
+      end.flatten
+    end
+
+    # Unique TestCase subclasses
+    def test_case_classes
+      test_cases.map{|test| test.class }.uniq
+    end
+
     def self.response_character(response)
       case
       when response.is_a?(PassResponse)

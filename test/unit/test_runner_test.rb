@@ -77,8 +77,10 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     patterns = [ 'test/**/*_MY_test.rb', 'test/**/MY_test_*.rb' ]
     @test_runner.patterns = patterns
     test_response1 = GUnit::PassResponse.new
+    test_case = GUnit::TestCase.new
+    test_case.expects(:run).returns(test_response1)
     test_suite = GUnit::TestSuite.new
-    test_suite.expects(:run).multiple_yields(test_response1)
+    test_suite.expects(:tests).returns([test_case]).at_least(1)
     @test_runner.tests = [test_suite]
     @test_runner.autorun = false
     @test_runner.run
@@ -130,9 +132,11 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   def test_run_silent
     @test_runner.io = mock() # fails if any methods on io are called
     @test_runner.silent = true
-    test_response1 = GUnit::PassResponse.new    
+    test_response1 = GUnit::PassResponse.new
+    test_case = GUnit::TestCase.new
+    test_case.expects(:run).returns(test_response1)
     test_suite = GUnit::TestSuite.new
-    test_suite.expects(:run).yields(test_response1)
+    test_suite.tests = [test_case]
     @test_runner.tests = [test_suite]
     @test_runner.run
   end
@@ -140,15 +144,16 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   def test_run_bang
     @test_runner.io = mock() # fails if any methods on io are called
     @test_runner.silent = true
-    test_response1 = GUnit::PassResponse.new
+    test_case = GUnit::TestCase.new
     test_suite = GUnit::TestSuite.new
+    test_suite.tests = [test_case]
     @test_runner.tests = [test_suite]
-
-    test_suite.expects(:run).times(0)
+    test_case.expects(:run).times(0)
     @test_runner.autorun = false
     @test_runner.run!
-
-    test_suite.expects(:run).times(1).yields(test_response1)
+    
+    test_response1 = GUnit::PassResponse.new
+    test_case.expects(:run).times(1).returns(test_response1)
     @test_runner.autorun = true
     @test_runner.run!
   end
@@ -158,7 +163,6 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     fail_response_message = "Whoops. Failed."
     fail_line_number = 63
     fail_file_name = 'my_test.rb'
-    backtrace = 
     test_response2 = GUnit::FailResponse.new(fail_response_message, ["samples/#{fail_file_name}:#{fail_line_number}:in `my_method'"])
     exception_response_message = "Exceptional"
     exception_line_number = 72
@@ -175,12 +179,21 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     io.expects(:puts).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{fail_file_name}/ && value =~ /#{fail_line_number}/ }.at_least(1)
     io.expects(:puts).with() { |value| value =~ /#{exception_response_message}/ && value =~ /#{exception_file_name}/ && value =~ /#{exception_line_number}/ }.at_least(1)
     @test_runner.io = io
+
+    test_case1 = GUnit::TestCase.new
+    test_case1.expects(:run).returns(test_response1)
+    test_case2 = GUnit::TestCase.new
+    test_case2.expects(:run).returns(test_response2)
+    test_case3 = GUnit::TestCase.new
+    test_case3.expects(:run).returns(test_response3)
+    test_case4 = GUnit::TestCase.new
+    test_case4.expects(:run).returns(test_response4)
     
     test_suite = GUnit::TestSuite.new
-    test_suite.expects(:run).multiple_yields(test_response1, test_response2, test_response4)
-    test_case = GUnit::TestCase.new
-    test_case.expects(:run).returns(test_response3)
-    @test_runner.tests = [test_suite, test_case]
+    test_suite.tests = [test_case1, test_case2, test_case4]
+    @test_runner.tests = [test_suite, test_case3]
+
+    io.expects(:puts).with(test_case1.class.to_s).at_least(1)
 
     @test_runner.run
   end
@@ -190,11 +203,17 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     test_response2 = GUnit::FailResponse.new
     test_response3 = GUnit::ExceptionResponse.new
     test_response4 = GUnit::ToDoResponse.new
+    test_case1 = GUnit::TestCase.new
+    test_case1.expects(:run).returns(test_response1)
+    test_case2 = GUnit::TestCase.new
+    test_case2.expects(:run).returns(test_response2)
+    test_case3 = GUnit::TestCase.new
+    test_case3.expects(:run).returns(test_response3)
+    test_case4 = GUnit::TestCase.new
+    test_case4.expects(:run).returns(test_response4)
     test_suite = GUnit::TestSuite.new
-    test_suite.expects(:run).multiple_yields(test_response1, test_response2, test_response4)
-    test_case = GUnit::TestCase.new
-    test_case.expects(:run).returns(test_response3)
-    @test_runner.tests = [test_suite, test_case]
+    test_suite.tests = [test_case1, test_case2, test_case4]
+    @test_runner.tests = [test_suite, test_case3]
     
     @test_runner.run
     
