@@ -45,28 +45,25 @@ module GUnit
     end
     
     def assert_raises(*args, &blk)
-      expected = args[0]
-      message  = args[1]
-      
+      expected, message = args[0], args[1]
+
       begin
         blk.call
       rescue Exception => e
         actual = e
       end
 
-      bool = case
-      when actual.nil?
+      was_raised = if actual.nil?
         false
-      when expected.is_a?(String)
-        actual.to_s == expected
-      when expected.is_a?(Class)
-        actual.is_a?(expected)
-      when expected.nil?
-        !actual.nil?
       else
-        actual == expected
+        case expected
+        when String   then actual.to_s == expected
+        when Class    then actual.is_a?(expected)
+        when nil      then !actual.nil?
+        else;              actual == expected
+        end
       end
-      
+
       message ||= case
       when !expected.nil? && !actual.nil?
         "Expected #{expected.to_s} to be raised, but got #{actual.to_s}"
@@ -75,8 +72,8 @@ module GUnit
       else
         "Nothing raised"
       end
-      
-      assert bool, message
+
+      assert was_raised, message
     end
     
   end
