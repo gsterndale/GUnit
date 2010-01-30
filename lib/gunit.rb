@@ -6,6 +6,7 @@ require 'gunit/assertions'
 
 require 'gunit/context'
 
+require 'gunit/groundwork'
 require 'gunit/exercise'
 require 'gunit/setup'
 require 'gunit/teardown'
