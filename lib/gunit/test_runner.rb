@@ -80,19 +80,19 @@ module GUnit
     end
     
     def passes
-      @responses.find_all{|r| r.is_a? PassResponse }
+      @responses.find_all{|response| response.is_a? PassResponse }
     end
     
     def fails
-      @responses.find_all{|r| r.is_a? FailResponse }
+      @responses.find_all{|response| response.is_a? FailResponse }
     end
     
     def exceptions
-      @responses.find_all{|r| r.is_a? ExceptionResponse }
+      @responses.find_all{|response| response.is_a? ExceptionResponse }
     end
     
     def to_dos
-      @responses.find_all{|r| r.is_a? ToDoResponse }
+      @responses.find_all{|response| response.is_a? ToDoResponse }
     end
     
   protected
@@ -109,7 +109,7 @@ module GUnit
 
     def print_responses_summary
       @io.puts ""
-      @responses.select{|r| !r.is_a?(GUnit::PassResponse) }.each do |response|
+      @responses.select{|response| !response.is_a?(GUnit::PassResponse) }.each do |response|
         @io.print self.class.response_color(response)
         @io.print "#{response.message} (#{response.file_name}:#{response.line_number})\n"
         @io.print DEFAULT_COLOR
@@ -118,8 +118,8 @@ module GUnit
     end
 
     # Flatten array of TestSuites and TestCases into a single dimensional array of TestCases
-    def test_cases(a=self.tests)
-      a.map do |test|
+    def test_cases(test_suites_cases=self.tests)
+      test_suites_cases.map do |test|
         case test
         when GUnit::TestSuite
           test_cases(test.tests)

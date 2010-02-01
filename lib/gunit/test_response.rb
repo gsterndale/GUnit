@@ -9,12 +9,12 @@ module GUnit
     
     # FailResponse.new("my message")
     def initialize(*args)
-      self.message = args.find{|a| a.is_a?(String) } || self.class::DEFAULT_MESSAGE
-      self.backtrace = args.find{|a| a.is_a?(Array) } || []
+      self.message = args.find{|arg| arg.is_a?(String) } || self.class::DEFAULT_MESSAGE
+      self.backtrace = args.find{|arg| arg.is_a?(Array) } || []
     end
     
-    def backtrace=(a=[])
-      @backtrace = a
+    def backtrace=(traces=[])
+      @backtrace = traces
       discover_file_name
       discover_line_number
       @backtrace

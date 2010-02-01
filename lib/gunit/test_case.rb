@@ -38,8 +38,8 @@ module GUnit
       at_exit { subclass.autorun }
     end
 
-    def self.autorun=(a)
-      @@autorun = !a.nil? && a
+    def self.autorun=(bool)
+      @@autorun = !bool.nil? && bool
     end
 
     def self.autorun?
@@ -65,7 +65,7 @@ module GUnit
 
     def self.test_methods(prefix=TEST_METHOD_PREFIX)
       method_names = instance_methods.find_all{|method| method =~ /\A#{prefix}/ && ! GUnit::TestCase.instance_methods.include?(method) }
-      method_names.map!{|m| m.to_sym }
+      method_names.map!{|method_name| method_name.to_sym }
     end
     
     def self.context_for_method(method_name)
@@ -149,7 +149,7 @@ module GUnit
   protected
   	
     def run_setups
-      self.context.all_setups.each {|s| s.run(self) }
+      self.context.all_setups.each {|setup| setup.run(self) }
     end
     
     def run_excercise
@@ -157,7 +157,7 @@ module GUnit
     end
     
     def run_teardowns
-      self.context.all_teardowns.reverse.each {|t| t.run(self) } if self.context
+      self.context.all_teardowns.reverse.each {|teardown| teardown.run(self) } if self.context
     end
     
     def self.current_context
