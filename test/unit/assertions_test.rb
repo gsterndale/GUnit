@@ -98,7 +98,7 @@ class FooTest < Test::Unit::TestCase
     end
   end
   
-  def test_assert_raises_two_args_one_block
+  def test_assert_raises_string_message_block
     block     = Proc.new { raise "boom" }
     expected  = "boom"
     message   = "my message here"
@@ -106,7 +106,7 @@ class FooTest < Test::Unit::TestCase
     assert result === true
   end
   
-  def test_assert_raises_two_args_with_class_one_block
+  def test_assert_raises_class_message_block
     block     = Proc.new { raise StandardError }
     expected  = StandardError
     message   = "my message here"
@@ -114,14 +114,14 @@ class FooTest < Test::Unit::TestCase
     assert result === true
   end
   
-  def test_assert_raises_one_arg_one_block
+  def test_assert_raises_string_block
     block     = Proc.new { raise "boom" }
     expected  = "boom"
     result    = @foo1.assert_raises expected, &block
     assert result === true
   end
   
-  def test_assert_raises_one_block
+  def test_assert_raises_block_only
     block   = Proc.new { raise "boom" }
     result  = @foo1.assert_raises &block
     assert result === true
