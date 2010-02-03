@@ -57,10 +57,9 @@ module GUnit
         false
       else
         case expected
-        when String   then actual.to_s == expected
         when Class    then actual.is_a?(expected)
         when nil      then !actual.nil?
-        else;              actual == expected
+        else;              actual.to_s == expected
         end
       end
 
