@@ -73,11 +73,7 @@ module GUnit
     end
     
     def self.context(*args, &blk)
-      new_context = if blk
-        GUnit::Context.new(args.first, &blk)
-      else
-        GUnit::Context.new(args.first)
-      end
+      new_context = GUnit::Context.new(args.first, &blk)
       new_context.parent = current_context
       @@context_stack << new_context
       current_context.run(self)
@@ -85,29 +81,17 @@ module GUnit
     end
     
     def self.setup(*args, &blk)
-      setup = if blk
-        GUnit::Setup.new(args.first, &blk)
-      else
-        GUnit::Setup.new(args.first)
-      end
+      setup = GUnit::Setup.new(args.first, &blk)
       current_context.setups << setup
     end
     
     def self.exercise(*args, &blk)
-      exercise = if blk
-        GUnit::Exercise.new(args.first, &blk)
-      else
-        GUnit::Exercise.new(args.first)
-      end
+      exercise = GUnit::Exercise.new(args.first, &blk)
       current_context.exercise = exercise
     end
     
     def self.teardown(*args, &blk)
-      teardown = if blk
-        GUnit::Teardown.new(args.first, &blk)
-      else
-        GUnit::Teardown.new(args.first)
-      end
+      teardown = GUnit::Teardown.new(args.first, &blk)
       current_context.teardowns << teardown
     end
     
