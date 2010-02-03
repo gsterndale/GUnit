@@ -82,11 +82,13 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal method_count + 1, MyClassTest.instance_methods.length
     assert dynamic_method_name.to_s =~ /#{MyClassTest::TEST_METHOD_PREFIX}/
     assert MyClassTest.instance_methods.include?(dynamic_method_name.to_s)
-    verification = GUnit::Verification.new
-    todo = GUnit::ToDoResponse.new
-    verification.expects(:run).returns(todo)
+    message = 'The truth'
+    verification = mock(:message => message, :run => true)
     GUnit::Verification.expects(:new).with(args).returns(verification)
-    assert_equal todo, MyClassTest.new.send(dynamic_method_name)
+    response = MyClassTest.new.send(dynamic_method_name)
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::PassResponse)
+    assert_equal message, response.message
   end
   
   def test_verify_with_block_creates_instance_method
@@ -97,12 +99,14 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal method_count + 1, MyClassTest.instance_methods.length
     assert dynamic_method_name.to_s =~ /#{MyClassTest::TEST_METHOD_PREFIX}/
     assert MyClassTest.new.respond_to?(dynamic_method_name)
-    verification = GUnit::Verification.new
-    pass = GUnit::PassResponse.new
-    verification.expects(:run).returns(pass)
+    message = 'The truth'
+    verification = mock(:message => message, :run => true)
 # TODO how to set expectation that blk is passed to new() ???
-    GUnit::Verification.expects(:new).with(args).returns(verification)
-    assert_equal pass, MyClassTest.new.send(dynamic_method_name)
+    GUnit::Verification.expects(:new).returns(verification)
+    response = MyClassTest.new.send(dynamic_method_name)
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::PassResponse)
+    assert_equal message, response.message
   end
   
   def test_run_runs_setups
@@ -142,7 +146,52 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     @my_test_case3.run
     assert_equal "zip", @my_test_case3.instance_variable_get("@foo")
   end
-  
+
+  def test_run_with_test_method_raising_assertion_failure
+    exception_message = 'Whoops'
+    exception = GUnit::AssertionFailure.new(exception_message)
+    verify_message = "The truth"
+    verification = mock
+    verification.expects(:run).raises(exception)
+    dynamic_method_name = MyClassTest.verify(verify_message)
+    GUnit::Verification.expects(:new).with(verify_message).returns(verification)
+    @my_test_case4 = MyClassTest.new(dynamic_method_name)
+    response = @my_test_case4.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::FailResponse)
+    assert_equal exception_message, response.message
+  end
+
+  def test_run_with_test_method_raising_nothing_to_do_exception
+    exception_message = 'Nothin here'
+    exception = GUnit::NothingToDo.new(exception_message)
+    verify_message = "The truth"
+    verification = mock
+    verification.expects(:run).raises(exception)
+    dynamic_method_name = MyClassTest.verify(verify_message)
+    GUnit::Verification.expects(:new).with(verify_message).returns(verification)
+    @my_test_case5 = MyClassTest.new(dynamic_method_name)
+    response = @my_test_case5.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ToDoResponse)
+    assert_equal exception_message, response.message
+  end
+
+  def test_run_with_test_method_raising_random_exception
+    exception_message = 'Whoops'
+    exception = ::StandardError.new(exception_message)
+    verify_message = "The truth"
+    verification = mock
+    verification.expects(:run).raises(exception)
+    dynamic_method_name = MyClassTest.verify(verify_message)
+    GUnit::Verification.expects(:new).with(verify_message).returns(verification)
+    @my_test_case5 = MyClassTest.new(dynamic_method_name)
+    response = @my_test_case5.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ExceptionResponse)
+    assert_equal exception_message, response.message
+  end
+
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
     assert MyClassTest.test_methods.include?(:test_two)

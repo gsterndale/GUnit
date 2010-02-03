@@ -114,12 +114,9 @@ module GUnit
     def self.verify(*args, &blk)
       test_method_name = message_to_unique_test_method_name(args.first)
       define_method(test_method_name) do
-        verification = if blk
-          GUnit::Verification.new(args.first, &blk)
-        else
-          GUnit::Verification.new(args.first)
-        end
+        verification = GUnit::Verification.new(args.first, &blk)
         verification.run(self)
+        GUnit::PassResponse.new(verification.message)
       end
       @@method_count += 1
       @@test_method_contexts[test_method_name] = current_context
@@ -143,7 +140,14 @@ module GUnit
       self.run_excercise
       response = self.send(self.method_name.to_sym)
       self.run_teardowns
-      response
+    rescue GUnit::NothingToDo => e
+      response = ToDoResponse.new(e.message, e.backtrace)
+    rescue GUnit::AssertionFailure => e
+      response = FailResponse.new(e.message, e.backtrace)
+    rescue ::Exception => e
+      response = ExceptionResponse.new(e.message, e.backtrace)
+    ensure
+      return response
     end
 
   protected

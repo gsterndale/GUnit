@@ -1,5 +1,8 @@
 module GUnit
-  
+
+  class NothingToDo < StandardError
+  end
+
   class Verification
     attr_writer :message
     attr_accessor :task
@@ -13,19 +16,9 @@ module GUnit
     end
     
     def run(binding=self)
-      begin
-        if @task.is_a?(Proc)
-          bound_task = @task.bind(binding)
-          bound_task.call
-          PassResponse.new
-        else
-          ToDoResponse.new(self.message, Kernel.caller)
-        end
-      rescue GUnit::AssertionFailure => e
-        FailResponse.new(e.message, e.backtrace)
-      rescue ::Exception => e
-        ExceptionResponse.new(e.message, e.backtrace)
-      end
+      raise GUnit::NothingToDo.new(self.message) unless @task.is_a?(Proc) # Kernel.caller
+      bound_task = @task.bind(binding)
+      bound_task.call
     end
     
     def message
