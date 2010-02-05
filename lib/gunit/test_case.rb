@@ -124,12 +124,12 @@ module GUnit
       self.run_excercise
       response = self.send(self.method_name.to_sym)
       self.run_teardowns
-    rescue GUnit::NothingToDo => e
-      response = ToDoResponse.new(e.message, e.backtrace)
-    rescue GUnit::AssertionFailure => e
-      response = FailResponse.new(e.message, e.backtrace)
     rescue ::Exception => e
-      response = ExceptionResponse.new(e.message, e.backtrace)
+      response = case e
+      when GUnit::NothingToDo       then ToDoResponse
+      when GUnit::AssertionFailure  then FailResponse
+      else;                              ExceptionResponse
+      end.new(e.message, e.backtrace)
     ensure
       return response
     end

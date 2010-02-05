@@ -192,6 +192,20 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert_equal exception_message, response.message
   end
 
+  def test_run_with_test_method_raising_string
+    exception = 'Whoops'
+    verify_message = "The truth"
+    verification = mock
+    verification.expects(:run).raises(exception)
+    dynamic_method_name = MyClassTest.verify(verify_message)
+    GUnit::Verification.expects(:new).with(verify_message).returns(verification)
+    @my_test_case5 = MyClassTest.new(dynamic_method_name)
+    response = @my_test_case5.run
+    assert response.is_a?(GUnit::TestResponse)
+    assert response.is_a?(GUnit::ExceptionResponse)
+    assert_equal exception, response.message
+  end
+  
   def test_test_methods
     assert MyClassTest.test_methods.include?(:test_one)
     assert MyClassTest.test_methods.include?(:test_two)
