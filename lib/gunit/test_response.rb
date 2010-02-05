@@ -4,13 +4,14 @@ module GUnit
     
     DEFAULT_MESSAGE = ''
     
-    attr_accessor :message
+    attr_accessor :message, :test_case
     attr_reader :backtrace, :line_number, :file_name
     
     # FailResponse.new("my message")
     def initialize(*args)
       self.message = args.find{|arg| arg.is_a?(String) } || self.class::DEFAULT_MESSAGE
       self.backtrace = args.find{|arg| arg.is_a?(Array) } || []
+      self.test_case = args.find{|arg| arg.is_a?(GUnit::TestCase) }
     end
     
     def backtrace=(traces=[])

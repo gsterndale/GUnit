@@ -31,6 +31,12 @@ class GUnit::TestResponseTest < Test::Unit::TestCase
     assert_equal backtrace, @test_response1.backtrace
   end
   
+  def test_test_case_setter
+    test_case = GUnit::TestCase.new
+    @test_response1.test_case = test_case
+    assert_equal test_case, @test_response1.test_case
+  end
+  
   # TestResponse.new('my fixtures')
   def test_initialize_with_string
     message = 'Uhohs'
@@ -38,13 +44,31 @@ class GUnit::TestResponseTest < Test::Unit::TestCase
     assert @test_response2.message === message
   end
   
+  # TestResponse.new(['a', 'b', 'c'])
   def test_initialize_with_array
     backtrace = ['a', 'b', 'c']
     @test_response2 = GUnit::TestResponse.new(backtrace)
     assert_equal backtrace, @test_response2.backtrace
   end
   
+  # TestResponse.new(GUnit::TestCase.new)
+  def test_initialize_with_test_case
+    test_case = GUnit::TestCase.new
+    @test_response2 = GUnit::TestResponse.new(test_case)
+    assert_equal test_case, @test_response2.test_case
+  end
+  
+  # TestResponse.new('my fixtures', ['a', 'b', 'c'])
   def test_initialize_with_string_and_array
+    message = 'Uhohs'
+    backtrace = ['a', 'b', 'c']
+    @test_response2 = GUnit::TestResponse.new(message, backtrace)
+    assert_equal backtrace, @test_response2.backtrace
+    assert @test_response2.message === message
+  end
+  
+  # TestResponse.new('my fixtures', GUnit::TestCase.new, ['a', 'b', 'c'])
+  def test_initialize_with_string_test_case_and_array
     message = 'Uhohs'
     backtrace = ['a', 'b', 'c']
     @test_response2 = GUnit::TestResponse.new(message, backtrace)
