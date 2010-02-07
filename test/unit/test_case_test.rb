@@ -160,6 +160,7 @@ class GUnit::TestCaseTest < Test::Unit::TestCase
     assert response.is_a?(GUnit::TestResponse)
     assert response.is_a?(GUnit::FailResponse)
     assert_equal exception_message, response.message
+    assert_equal @my_test_case4, response.test_case
   end
 
   def test_run_with_test_method_raising_nothing_to_do_exception

@@ -129,7 +129,7 @@ module GUnit
       when GUnit::NothingToDo       then ToDoResponse
       when GUnit::AssertionFailure  then FailResponse
       else;                              ExceptionResponse
-      end.new(e.message, e.backtrace)
+      end.new(e.message, e.backtrace, self)
     ensure
       return response
     end
