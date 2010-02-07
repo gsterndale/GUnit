@@ -159,11 +159,19 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
   end
 
   def test_run_not_silent
+    test_case1 = GUnit::TestCase.new
+    test_case2 = GUnit::TestCase.new
+    context2_message = "my context here"
+    context2 = mock(:all_message => context2_message)
+    test_case2.expects(:context).at_least(1).returns(context2)
+    test_case3 = GUnit::TestCase.new
+    test_case4 = GUnit::TestCase.new
+
     test_response1 = GUnit::PassResponse.new
     fail_response_message = "Whoops. Failed."
     fail_line_number = 63
     fail_file_name = 'my_test.rb'
-    test_response2 = GUnit::FailResponse.new(fail_response_message, ["samples/#{fail_file_name}:#{fail_line_number}:in `my_method'"])
+    test_response2 = GUnit::FailResponse.new(fail_response_message, ["samples/#{fail_file_name}:#{fail_line_number}:in `my_method'"], test_case2)
     exception_response_message = "Exceptional"
     exception_line_number = 72
     exception_file_name = 'my_other_test.rb'
@@ -171,7 +179,19 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
     to_do_response_message = "Not dun yet"
     test_response4 = GUnit::ToDoResponse.new(to_do_response_message)
     @test_runner.silent = false
+
+    test_case1.expects(:run).returns(test_response1)
+    test_case2.expects(:run).returns(test_response2)
+    test_case3.expects(:run).returns(test_response3)
+    test_case4.expects(:run).returns(test_response4)
+
+    test_suite = GUnit::TestSuite.new
+    test_suite.tests = [test_case1, test_case2, test_case4]
+    @test_runner.tests = [test_suite, test_case3]
+
     io = mock
+    io.stubs(:puts)
+
     io.expects(:print).with(GUnit::TestRunner::PASS_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::FAIL_CHAR).at_least(1)
     io.expects(:print).with(GUnit::TestRunner::EXCEPTION_CHAR).at_least(1)
@@ -186,24 +206,11 @@ class GUnit::TestRunnerTest < Test::Unit::TestCase
 
     io.expects(:print).with(GUnit::TestRunner::DEFAULT_COLOR).at_least(7)
 
-    io.stubs(:puts)
+    io.expects(:print).with() { |value| value =~ /#{context2_message}/ }
     io.expects(:print).with() { |value| value =~ /#{fail_response_message}/ && value =~ /#{fail_file_name}/ && value =~ /#{fail_line_number}/ }.at_least(1)
     io.expects(:print).with() { |value| value =~ /#{exception_response_message}/ && value =~ /#{exception_file_name}/ && value =~ /#{exception_line_number}/ }.at_least(1)
     io.expects(:print).with() { |value| value =~ /#{to_do_response_message}/ }.at_least(1)
     @test_runner.io = io
-
-    test_case1 = GUnit::TestCase.new
-    test_case1.expects(:run).returns(test_response1)
-    test_case2 = GUnit::TestCase.new
-    test_case2.expects(:run).returns(test_response2)
-    test_case3 = GUnit::TestCase.new
-    test_case3.expects(:run).returns(test_response3)
-    test_case4 = GUnit::TestCase.new
-    test_case4.expects(:run).returns(test_response4)
-
-    test_suite = GUnit::TestSuite.new
-    test_suite.tests = [test_case1, test_case2, test_case4]
-    @test_runner.tests = [test_suite, test_case3]
 
     io.expects(:puts).with(test_case1.class.to_s).at_least(1)
 

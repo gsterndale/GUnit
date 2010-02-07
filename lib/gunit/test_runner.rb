@@ -111,6 +111,7 @@ module GUnit
       @io.puts ""
       @responses.select{|response| !response.is_a?(GUnit::PassResponse) }.each do |response|
         @io.print self.class.response_color(response)
+        @io.print response.test_case.context.all_message + "\n" if response.test_case && response.test_case.context
         @io.print "#{response.message} (#{response.file_name}:#{response.line_number})\n"
         @io.print DEFAULT_COLOR
       end
