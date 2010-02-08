@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{GUnit}
-  s.version = "0.3.3"
+  s.version = "0.3.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Greg Sterndale"]
-  s.date = %q{2010-02-03}
+  s.date = %q{2010-02-08}
   s.description = %q{GUnit is a fresh new XUnit Test implementation, poppin' a cap in the ass of TestUnit. Just playin'. TestUnit is the shizzle.}
   s.email = %q{gsterndale@gmail.com}
   s.extra_rdoc_files = [
