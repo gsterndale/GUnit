@@ -10,6 +10,8 @@ begin
     gem.email = "gsterndale@gmail.com"
     gem.homepage = "http://github.com/gsterndale/gunit"
     gem.authors = ["Greg Sterndale"]
+    gem.add_development_dependency "mocha", ">= 0.9.7"
+    gem.add_development_dependency "ruby-debug", ">= 0.10.3"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
